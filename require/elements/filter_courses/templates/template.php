@@ -1,6 +1,17 @@
 <?php
-
 use YOOtheme\Arr;
+require_once'filter.php';
+
+$attributes = array(
+    'Tecnologie'=>array(),
+    'Ruolo'=>array(),
+    'Vendor'=>array(),
+    'Modalita di erogazione'=>array(),
+    'Durata corso'=>array(),
+    'Calendario'=>array(),
+    'Sede'=>array(),
+    'Status'=>array()
+);
 
 $text_fields = ['title', 'site', 'date', 'price'];
 
@@ -90,9 +101,35 @@ $table = $this->el('table', [
         <?php endif ?>
 
         <tbody>
-        <?php foreach ($children as $i => $child) : ?>
-        <tr class="el-item"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
-        <?php endforeach ?>
+
+        
+        <?php if ($props['enable_filters'] == true):?>
+            
+            <?php 
+                foreach ($children as $i => $child) : ?>
+                <?php 
+                    
+                    $attributes = getData($child->props['attributes'], $attributes);
+                    // $attributes = array_merge_recursive($attr,$attributes);
+                    var_dump($attributes);
+                    // var_dump(in_array('Security', $attributes['Tecnologie']));
+                    // var_dump($attr);
+                ?>
+                    <tr class="el-item"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
+            <?php endforeach ?>
+            <?php 
+            // var_dump($attributes);
+            ?>
+
+        <?php endif ?>
+
+        <?php if ($props['enable_filters'] != true):?>
+            <?php foreach ($children as $i => $child) : ?>
+                <tr class="el-item"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
+            <?php endforeach ?>
+        <?php endif ?>
+
+
         </tbody>
 
     </table>
@@ -100,3 +137,11 @@ $table = $this->el('table', [
 <?php if ($props['table_responsive'] == 'overflow') : ?>
 </div>
 <?php endif ?>
+
+<?php if ($props['enable_filters'] == true){
+    // var_dump($child->props['attributes']);
+    // $products = wc_get_products( array( 'status' => 'publish', 'limit' => -1 ) );
+    // var_dump($product);
+}
+
+?>

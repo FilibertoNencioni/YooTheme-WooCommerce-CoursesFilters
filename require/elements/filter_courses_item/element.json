@@ -30,7 +30,13 @@
             "source": true
         },
         "price":{
-            "label": "Prezzo"
+            "label": "Prezzo",
+            "source": true
+        },
+        "attributes":{
+            "label": "Additional Information",
+            "source": true,
+            "description":"This will not be shown in the table, is required only for the filter feature"
         },
         "image": "${builder.image}",
         "image_alt": {
@@ -59,6 +65,7 @@
                         "site",
                         "date",
                         "price",
+                        "attributes",
                         "image",
                         "image_alt",
                         "link",

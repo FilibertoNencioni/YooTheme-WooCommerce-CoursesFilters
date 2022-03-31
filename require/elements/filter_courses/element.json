@@ -21,7 +21,8 @@
         "table_width_meta": "shrink",
         "image_svg_color": "emphasis",
         "link_text": "Read more",
-        "link_style": "default"
+        "link_style": "default",
+        "enable_filters": false
     },
     "placeholder": {
         "children": [
@@ -65,6 +66,12 @@
             "description": "Show or hide content fields without the need to delete the content itself.",
             "type": "checkbox",
             "text": "Show the link"
+        },
+        "enable_filters":{
+            "label":"Filter",
+            "description": "Enable or disable the filtered search for your courses",
+            "type":"checkbox",
+            "text":"Show the filters"
         },
         "table_style": {
             "label": "Style",
@@ -325,7 +332,7 @@
                 "H5": "h5",
                 "H6": "h6"
             },
-            "enable": "show_data"
+            "enable": "show_date"
         },
         "date_color": {
             "label": "Color",
@@ -538,6 +545,14 @@
                 {
                     "title": "Settings",
                     "fields": [
+                        {
+                            "label": "Filter",
+                            "type": "group",
+                            "divider":true,
+                            "fields":[
+                                "enable_filters"
+                            ]
+                        },
                         {
                             "label": "Table",
                             "type": "group",
