@@ -1,0 +1,72 @@
+{
+    "@import": "./element.php",
+    "name": "filter_courses_item",
+    "title": "Item",
+    "width": 500,
+    "placeholder": {
+        "props": {
+            "title": "title",
+            "site": "site",
+            "date":"date",
+            "price": "price",
+            "image": ""
+        }
+    },
+    "templates": {
+        "render": "./templates/template.php",
+        "content": "./templates/content.php"
+    },
+    "fields": {
+        "title": {
+            "label": "Titolo Corso",
+            "source": true
+        },
+        "site": {
+            "label": "Sede",
+            "source": true
+        },
+        "date": {
+            "label": "Data",
+            "source": true
+        },
+        "price":{
+            "label": "Prezzo"
+        },
+        "image": "${builder.image}",
+        "image_alt": {
+            "label": "Image Alt",
+            "source": true,
+            "enable": "image"
+        },
+        "link": "${builder.link}",
+        "link_text": {
+            "label": "Link Text",
+            "description": "Set a different link text for this item.",
+            "source": true,
+            "enable": "link"
+        },
+        "status": "${builder.statusItem}",
+        "source": "${builder.source}"
+    },
+    "fieldset": {
+        "default": {
+            "type": "tabs",
+            "fields": [
+                {
+                    "title": "Content",
+                    "fields": [
+                        "title",
+                        "site",
+                        "date",
+                        "price",
+                        "image",
+                        "image_alt",
+                        "link",
+                        "link_text"
+                    ]
+                },
+                "${builder.advancedItem}"
+            ]
+        }
+    }
+}
