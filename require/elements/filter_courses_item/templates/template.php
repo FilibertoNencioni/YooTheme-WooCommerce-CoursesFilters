@@ -1,5 +1,4 @@
 <?php
-
 foreach ($filtered as $j => $field) {
 
     echo $this->el('td', [
@@ -14,7 +13,7 @@ foreach ($filtered as $j => $field) {
 
             // Widths
             "uk-[table {@table_width_{$field}: shrink}][width {@!table_width_{$field}: shrink}]-{table_width_{$field}}" => $i == 0 && in_array($field, $text_fields),
-            'uk-table-shrink' => $i == 0 && in_array($field, ['image', 'link']),
+            'uk-table-shrink' => $i == 0 && in_array($field, ['image']),
         ],
 
     ], $this->render("{$__dir}/template-{$field}"))->render($element);
