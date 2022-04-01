@@ -1,7 +1,6 @@
 <?php
-
+// Questo file viene usato per salvare il 
 use YOOtheme\Arr;
-
 $fields = ['image', 'title', 'site', 'date', 'price', 'link'];
 
 // Find empty fields
@@ -29,6 +28,7 @@ $filtered = array_values(Arr::filter($fields, function ($field) use ($props, $ch
 
     <tbody>
         <?php foreach ($children as $i => $child) : ?>
+            <p>template.php </p>
         <tr><?= $builder->render($child, ['element' => $props, 'filtered' => $filtered]) ?></tr>
         <?php endforeach ?>
     </tbody>

@@ -1,5 +1,5 @@
 <?php
-use YOOtheme\Arr;
+namespace YOOtheme;
 require_once'filter.php';
 
 $attributes = array(
@@ -32,6 +32,7 @@ $filtered = array_values(Arr::filter($fields, function ($field) use ($props, $ch
 }));
 
 $el = $this->el('div', [
+
     // Responsive
     'class' => [
         'uk-overflow-auto {@table_responsive: overflow}',
@@ -64,7 +65,7 @@ $table = $this->el('table', [
 ?>
 
 <?php if ($props['table_responsive'] == 'overflow') : ?>
-    <?= $el($props, $attrs) ?>
+<?= $el($props, $attrs) ?>
     <?= $table($props) ?>
 <?php else : ?>
     <?= $table($props, $attrs) ?>
@@ -78,7 +79,7 @@ $table = $this->el('table', [
 
                     $lastColumn = $i !== 0 && !isset($filtered[$i + 1]);
 
-                    $div = $this->el('th', [
+                    echo $this->el('th', [
 
                         'class' => [
                             // Last column alignment
@@ -107,31 +108,21 @@ $table = $this->el('table', [
             <?php 
                 foreach ($children as $i => $child) : ?>
                 <?php 
-                    //GET ALL ATTRIBUTES           
-                    $attributes = getData($child->props['attributes'], $attributes);
+                    if(strlen($child->props['attributes'])>1){
+                        //GET ALL ATTRIBUTES           
+                        $attributes = getData($child->props['attributes'], $attributes);
 
-                    //GET ATTRIBUTE OF THE CHILD PRODUCT
-                    $singleAttributes = getSingleData($child->props['attributes']);
-                    
-                    //DEVO CREARE DIV QUI CON tag-tecnologie=""  !!!!!
-                    // echo '<div tag-tecnologie="'.$singleAttributes['Tecnologie'][0].'" tag-ruolo="'.$singleAttributes['Ruolo'][0].'" tag-vendor="'.$singleAttributes['Vendor'][0].'" tag-erogazione="'.$singleAttributes['Modalita di erogazione'][0].'" tag-durata="'.$singleAttributes['Durata corso'][0].'" tag-calendario="'.$singleAttributes['Calendario'][0].'" tag-sede="'.$singleAttributes['Sede'][0].'" tag-status="'.$singleAttributes['Status'][0].'">';
-                    // var_dump($child->props['link']);
-                    $divContainer = $this->el('div', [
-
-                        'tag-tecnologie' => $singleAttributes['Tecnologie'][0],
-                        'tag-ruolo' => $singleAttributes['Ruolo'][0],
-                        'tag-vendor'=>$singleAttributes['Vendor'][0],
-                        'tag-erogazione'=>$singleAttributes['Modalita di erogazione'][0],
-                        'tag-durata'=>$singleAttributes['Durata corso'][0],
-                        'tag-calendario'=>$singleAttributes['Calendario'][0],
-                        'tag-sede'=>$singleAttributes['Sede'][0],
-                        'tag-status'=>$singleAttributes['Status'][0]
-                    ]);                 
+                        //GET ATTRIBUTE OF THE CHILD PRODUCT
+                        $singleAttributes = getSingleData($child->props['attributes']);
+                    }
+                    $link = $child->props['link'];
 
                 ?>
-                    <?= $divContainer ?>
-                    <tr class="el-item"> <?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
-                </div>
+                <?php if(!Str::length($link)) : ?>
+                    <tr class="el-item" tag-tecnologie="<?= $singleAttributes['Tecnologie'][0]?>" tag-ruolo="<?= $singleAttributes['Ruolo'][0]?>" tag-vendor="<?= $singleAttributes['Vendor'][0]?>" tag-erogazione="<?= $singleAttributes['Modalita di erogazione'][0]?>" tag-durata="<?= $singleAttributes['Durata corso'][0]?>" tag-calendario="<?= $singleAttributes['Calendario'][0]?>" tag-sede="<?= $singleAttributes['Sede'][0]?>" tag-status="<?= $singleAttributes['Status'][0]?>"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
+                <?php else : ?>
+                    <tr class="el-item" tag-tecnologie="<?= $singleAttributes['Tecnologie'][0]?>" tag-ruolo="<?= $singleAttributes['Ruolo'][0]?>" tag-vendor="<?= $singleAttributes['Vendor'][0]?>" tag-erogazione="<?= $singleAttributes['Modalita di erogazione'][0]?>" tag-durata="<?= $singleAttributes['Durata corso'][0]?>" tag-calendario="<?= $singleAttributes['Calendario'][0]?>" tag-sede="<?= $singleAttributes['Sede'][0]?>" tag-status="<?= $singleAttributes['Status'][0]?>" style="cursor:pointer;" onclick="window.location='<?= $link ?>'"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
+                <?php endif ?>
             <?php endforeach ?>
             <?php 
             // var_dump($attributes);
@@ -139,11 +130,11 @@ $table = $this->el('table', [
 
         <?php endif ?>
 
-        <!-- <?php if ($props['enable_filters'] != true):?>
+        <?php if ($props['enable_filters'] != true):?>
             <?php foreach ($children as $i => $child) : ?>
                 <tr class="el-item"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
             <?php endforeach ?>
-        <?php endif ?> -->
+        <?php endif ?>
 
 
         </tbody>
@@ -155,7 +146,9 @@ $table = $this->el('table', [
 <?php endif ?>
 
 <?php if ($props['enable_filters'] == true){
-    var_dump($attributes);
+    // var_dump($child->props['attributes']);
+    // $products = wc_get_products( array( 'status' => 'publish', 'limit' => -1 ) );
+    // var_dump($product);
 }
 
 ?>

@@ -17,3 +17,4 @@ $el = $this->el('div', [
 ]);
 
 echo $el($element, $props['date']);
+

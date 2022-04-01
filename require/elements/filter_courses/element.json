@@ -20,6 +20,7 @@
         "table_width_title": "shrink",
         "table_width_meta": "shrink",
         "image_svg_color": "emphasis",
+        "link_text": "Read more",
         "link_style": "default",
         "enable_filters": false
     },
@@ -447,6 +448,11 @@
             },
             "enable": "show_image && image_svg_inline"
         },
+        "link_text": {
+            "label": "Text",
+            "description": "Enter the text for the link.",
+            "enable": "show_link"
+        },
         "link_target": {
             "type": "checkbox",
             "text": "Open in a new window",
@@ -627,6 +633,7 @@
                             "type": "group",
                             "divider": true,
                             "fields": [
+                                "link_text",
                                 "link_target",
                                 "link_style",
                                 "link_size",

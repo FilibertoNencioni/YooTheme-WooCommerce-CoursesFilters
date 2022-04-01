@@ -45,6 +45,12 @@
             "enable": "image"
         },
         "link": "${builder.link}",
+        "link_text": {
+            "label": "Link Text",
+            "description": "Set a different link text for this item.",
+            "source": true,
+            "enable": "link"
+        },
         "status": "${builder.statusItem}",
         "source": "${builder.source}"
     },
@@ -62,7 +68,8 @@
                         "attributes",
                         "image",
                         "image_alt",
-                        "link"
+                        "link",
+                        "link_text"
                     ]
                 },
                 "${builder.advancedItem}"
