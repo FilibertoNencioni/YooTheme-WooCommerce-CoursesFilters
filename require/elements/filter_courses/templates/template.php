@@ -126,7 +126,7 @@ function printAttrTags($attributes){
                 <?php 
                     if(strlen($child->props['attributes'])>1){
                         //GET ALL ATTRIBUTES           
-                        $attributes = getData($child->props['attributes'], $attributes, $unwanted_array);
+                        $attributes = getData($child->props['attributes'], $attributes);
 
                         //GET ATTRIBUTE OF THE CHILD PRODUCT
                         $singleAttributes = getSingleData($child->props['attributes'], $unwanted_array);
@@ -137,11 +137,9 @@ function printAttrTags($attributes){
                 <?php if(!Str::length($link)) : ?>
                     <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes) ?>><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
 
-                    <!-- <tr class="el-item" tag-tecnologie="<?= $singleAttributes['Tecnologie'][0]?>" tag-ruolo="<?= $singleAttributes['Ruolo'][0]?>" tag-vendor="<?= $singleAttributes['Vendor'][0]?>" tag-erogazione="<?= $singleAttributes['Modalita di erogazione'][0]?>" tag-durata="<?= $singleAttributes['Durata corso'][0]?>" tag-calendario="<?= $singleAttributes['Calendario'][0]?>" tag-sede="<?= $singleAttributes['Sede'][0]?>" tag-status="<?= $singleAttributes['Status'][0]?>"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr> -->
                 <?php else : ?>
                     <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes) ?> style="cursor:pointer;" onclick="window.location='<?= $link ?>'"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
 
-                    <!-- <tr class="el-item" tag-tecnologie="<?= $singleAttributes['Tecnologie'][0]?>" tag-ruolo="<?= $singleAttributes['Ruolo'][0]?>" tag-vendor="<?= $singleAttributes['Vendor'][0]?>" tag-erogazione="<?= $singleAttributes['Modalita di erogazione'][0]?>" tag-durata="<?= $singleAttributes['Durata corso'][0]?>" tag-calendario="<?= $singleAttributes['Calendario'][0]?>" tag-sede="<?= $singleAttributes['Sede'][0]?>" tag-status="<?= $singleAttributes['Status'][0]?>" style="cursor:pointer;" onclick="window.location='<?= $link ?>'"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr> -->
                 <?php endif ?>
             <?php endforeach ?>
 
@@ -158,9 +156,7 @@ function printAttrTags($attributes){
 
     </table>
 
-<!-- <?php if ($props['table_responsive'] == 'overflow') : ?> -->
 </div>
-<!-- <?php endif ?> -->
 
 <?php if ($props['enable_filters'] == true) : ?>
     <?= $filterContainer ?>
@@ -178,14 +174,13 @@ function printAttrTags($attributes){
             <h3 class="uk-h5"><?= $index ?></h3>
             <div class="uk-flex uk-flex-column filters-<?= strtolower(preg_replace('/\s+/', '-', $index)) ?>">
             <?php foreach($attributes[$index] as $attr) :
-                $attr = trim($attr); 
-                // $tagvalue="tag-".preg_replace('/\s+/', '-', $index)."-value-".preg_replace('/\s+/', '-', $attr);
-                $tagvalue ='tag-'.preg_replace('/\s+/', '-', $index).'="'.preg_replace('/\s+/', '-', $attr).'"';
+                $attrvalue = trim($attr->get_name()); 
+                $nTimes = $attr ->get_nTimes();
+                $tagvalue ='tag-'.preg_replace('/\s+/', '-', $index).'="'.preg_replace('/\s+/', '-', $attrvalue).'"';
                 ?>
 
-                <label><input class="uk-checkbox" type="checkbox" <?= $tagvalue?>> <?= $attr ?> </label>
+                <label><input class="uk-checkbox" type="checkbox" <?= $tagvalue?>> <?= $attrvalue ?> <span class="count">(<?= $nTimes ?>)</span></label>
             <?php endforeach ?>
-            <!-- Settare onClick (passa come attributo 'nomeattributo'-'termine' es: tecnologie-cloud oppure ruolo-cloud-engineer) -->
             </div>       
             
         </div>
@@ -197,6 +192,8 @@ function printAttrTags($attributes){
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script type="text/javascript">
+    // var removedTags=[];
+
     var classNames = [];
     $('div[class*="filters-"]').each(function(i, el){
         var name = (el.className.match(/(^|\s)(filters\-[^\s]*)/) || [,,''])[2];
@@ -208,11 +205,7 @@ function printAttrTags($attributes){
     $(".filters :checkbox").click(function() {
         //Populating the array with all the courses, this is used to see which courses match the attributes
         const corsiDaMostrare = [];
-        // const initCorsi = Object.keys($(".corso")).map(function (key) {return $(".corso")[key];}).slice(0,-2);
-        // Object.keys($(".corso")).map(function (key) {console.log($(".corso")[key])});
-        // for(let i = 0; i < initCorsi.length; i++){
-        //     corsiDaMostrare.push({corso: initCorsi[i], ok: true});
-        // }
+
         $(".corso").each(function(){
             corsiDaMostrare.push({corso: $(this).attr('id'), ok:true });
         });
@@ -221,11 +214,8 @@ function printAttrTags($attributes){
             //Check match of attributes
             for (let i = 0; i < classNames.length; i++) {
                 let tag = classNames[i].replace('filters','tag');
-                // console.log("searching by tag: "+tag);
                 let tagValue = $(this).attr(tag);
-                // if(tagValue){
-                //     console.log("tagvalue: "+tagValue);
-                // }
+
 
                 if(tagValue){
                     $(".corso").each(function(){
@@ -233,7 +223,6 @@ function printAttrTags($attributes){
 
                         if($(this).attr(tag)){
                             const selectedCorso = $(this);
-                            // console.log({title:"selected corso", selectedCorso});
                             let corsoTagValues = selectedCorso.attr(tag).split(",");
                             for(let j = 0; j<corsoTagValues.length;j++){
                                 let name = corsoTagValues[j].trim().replace(" ","-");
@@ -243,8 +232,6 @@ function printAttrTags($attributes){
                             }
 
                             if(!attrFound){
-                                // console.log("inizio find in !attrFound");
-
                                 let corsoIndex = corsiDaMostrare.findIndex(function(elem){
                                     if(elem.corso === selectedCorso.eq(0).attr('id')){
                                         return elem;
@@ -253,7 +240,7 @@ function printAttrTags($attributes){
                                 if(corsoIndex !== -1){
                                     corsiDaMostrare[corsoIndex].ok = false;
                                 }else{
-                                    console.log("ERRORE - INDICE IN RICERCA NON TROVATO")
+                                    console.log("ERRORE - INDICE IN RICERCA NON TROVATO");
                                 }
                             }
                         }
@@ -268,11 +255,23 @@ function printAttrTags($attributes){
             var element = document.getElementById(corsiDaMostrare[i].corso);
             if(corsiDaMostrare[i].ok === false){
                 element.classList.add('uk-hidden');
+                // if(!removedTags.includes(corsiDaMostrare[i].corso)){
+                //     removedTags.push(corsiDaMostrare[i].corso);
+                // }
             }else{
                 if(element.classList.contains('uk-hidden')){
                     element.classList.remove('uk-hidden');
+                    // const index = removedTags.indexOf(corsiDaMostrare[i].corso);
+                    // if(index > -1){
+                    //     removedTags.splice(index, 1); 
+                    // }
                 }
             }
         }
+        
+        //TODO
+        //Se il nTimes è pari a 0 allora nascondere (creare funzione)
     });
+
+    
 </script>

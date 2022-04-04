@@ -7,31 +7,67 @@ $unwanted_array = array('Š'=>'S', 'š'=>'s', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', '
 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o',
 'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y' );
 
+class Attribute{
+    public $name;
+    public $nTimes;
 
+    function set_name($name){
+        $this->name = $name;
+    }
 
-function getData($htmlContent, $prevAttributes, $unwanted_array){
+    function set_nTimes($nTimes){
+        $this->nTimes = $nTimes;
+    }
+
+    function get_name() {
+        return $this->name;
+    }
+
+    function get_nTimes() {
+        return $this->nTimes;
+    }
+}
+
+function getData($htmlContent, $prevAttributes){
 	$DOM = new DOMDocument();
 	$DOM->loadHTML($htmlContent);
 	
 	$Detail = $DOM->getElementsByTagName('td');
-    $attributes = getEmptyAttributeArray($htmlContent, $unwanted_array);
 
 	$i = 0;
-    $keys = array_keys($attributes);
+    $keys = array_keys($prevAttributes);
 
 	foreach($Detail as $sNodeDetail) 
 	{
         $index = $keys[$i];
         $exploded = explode(',',$sNodeDetail->textContent);
+
         foreach($exploded as $value){
-            if(!in_array(trim($value), $prevAttributes[$index])){
-                array_push($attributes[$index], trim($value));
+            $innerIndex = -1;
+            if(count($prevAttributes[$index])>0){
+                $attrFoundIndex = 0;
+                foreach($prevAttributes[$index] as $attr){
+                    if($attr->get_name() == trim($value)){
+                        $innerIndex = $attrFoundIndex;
+                    }
+                    $attrFoundIndex++;
+                }
+            }
+            
+            if($innerIndex == -1){
+                $newAttribute = new Attribute();
+                $newAttribute -> set_name(trim($value));
+                $newAttribute -> set_nTimes(1);
+                array_push($prevAttributes[$index], $newAttribute);
+            }else{
+                $prevTimes = $prevAttributes[$index][$innerIndex]->get_nTimes()+1;
+                $prevAttributes[$index][$innerIndex]->set_nTimes($prevTimes);
             }
         }
        
 		$i = $i + 1;
 	}
-    return(array_merge_recursive($attributes, $prevAttributes));
+    return $prevAttributes;
 }
 
 
@@ -59,7 +95,7 @@ function getSingleData($htmlContent, $unwanted_array){
 
 function getEmptyAttributeArray($htmlContent, $unwanted_array){     
     $DOM = new DOMDocument();
-	$DOM->loadHTML($htmlContent);  
+	$DOM->loadHTML($htmlContent);
     $Header = $DOM->getElementsByTagName('th');
     $aDataTableHeaderHTML = [];
 
