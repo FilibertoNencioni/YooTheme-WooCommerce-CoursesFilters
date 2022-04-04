@@ -214,11 +214,14 @@ function printAttrTags($attributes){
     $(".filters :checkbox").click(function() {
         //Populating the array with all the courses, this is used to see which courses match the attributes
         const corsiDaMostrare = [];
-        const initCorsi = Object.keys($(".corso")).map(function (key) {return $(".corso")[key];}).slice(0,-2);
-
-        for(let i = 0; i < initCorsi.length; i++){
-            corsiDaMostrare.push({corso: initCorsi[i], ok: true});
-        }
+        // const initCorsi = Object.keys($(".corso")).map(function (key) {return $(".corso")[key];}).slice(0,-2);
+        // Object.keys($(".corso")).map(function (key) {console.log($(".corso")[key])});
+        // for(let i = 0; i < initCorsi.length; i++){
+        //     corsiDaMostrare.push({corso: initCorsi[i], ok: true});
+        // }
+        $(".corso").each(function(){
+            corsiDaMostrare.push({corso: $(this).attr('id'), ok:true });
+        });
 
         $(".filters :checkbox:checked").each(function() {
             //Check match of attributes
@@ -239,7 +242,8 @@ function printAttrTags($attributes){
                             // console.log({title:"selected corso", selectedCorso});
                             let corsoTagValues = selectedCorso.attr(tag).split(",");
                             for(let j = 0; j<corsoTagValues.length;j++){
-                                if(tagValue === corsoTagValues[j].trim()){
+                                let name = corsoTagValues[j].trim().replace(" ","-");
+                                if(tagValue === name){
                                     attrFound=true;
                                 }
                             }
@@ -248,7 +252,7 @@ function printAttrTags($attributes){
                                 // console.log("inizio find in !attrFound");
 
                                 let corsoIndex = corsiDaMostrare.findIndex(function(elem){
-                                    if(elem.corso === selectedCorso[0]){
+                                    if(elem.corso === selectedCorso.eq(0).attr('id')){
                                         return elem;
                                     }
                                 });
@@ -265,10 +269,15 @@ function printAttrTags($attributes){
             }
 
         });
-
+        console.log(corsiDaMostrare);
         for(let i = 0; i < corsiDaMostrare.length; i++){
+            var element = document.getElementById(corsiDaMostrare[i].corso);
             if(corsiDaMostrare[i].ok === false){
+                element.classList.add('uk-hidden');
             }else{
+                if(element.classList.contains('uk-hidden')){
+                    element.classList.remove('uk-hidden');
+                }
             }
         }
     });
