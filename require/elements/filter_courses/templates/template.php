@@ -31,11 +31,25 @@ $filtered = array_values(Arr::filter($fields, function ($field) use ($props, $ch
     });
 }));
 
+$container = $this->el('div', [
+    'class'=>[
+        'uk-flex'
+    ]
+]);
+
+$filterContainer = $this->el('div',[
+    'class'=>[
+        'uk-flex-first',
+        'uk-width-1-4@m'
+    ]
+]);
+
 $el = $this->el('div', [
 
-    // Responsive
     'class' => [
-        'uk-overflow-auto {@table_responsive: overflow}',
+        'uk-width-expand@m',
+        'uk-flex-last',
+        'uk-margin-left'
     ],
 
 ]);
@@ -62,14 +76,18 @@ $table = $this->el('table', [
 
 ]);
 
+
+
 ?>
 
-<?php if ($props['table_responsive'] == 'overflow') : ?>
-<?= $el($props, $attrs) ?>
+<!-- <?php if ($props['table_responsive'] == 'overflow') : ?> -->
+    <?= $container ?>
+    <?= $el($props, $attrs) ?>
     <?= $table($props) ?>
-<?php else : ?>
+<!-- <?php else : ?>
+    <?= $grid ?>
     <?= $table($props, $attrs) ?>
-<?php endif ?>
+<?php endif ?> -->
 
         <?php if (Arr::some($filtered, function ($field) use ($props) { return $props["table_head_{$field}"]; })) : ?>
         <thead>
@@ -124,9 +142,6 @@ $table = $this->el('table', [
                     <tr class="el-item" tag-tecnologie="<?= $singleAttributes['Tecnologie'][0]?>" tag-ruolo="<?= $singleAttributes['Ruolo'][0]?>" tag-vendor="<?= $singleAttributes['Vendor'][0]?>" tag-erogazione="<?= $singleAttributes['Modalita di erogazione'][0]?>" tag-durata="<?= $singleAttributes['Durata corso'][0]?>" tag-calendario="<?= $singleAttributes['Calendario'][0]?>" tag-sede="<?= $singleAttributes['Sede'][0]?>" tag-status="<?= $singleAttributes['Status'][0]?>" style="cursor:pointer;" onclick="window.location='<?= $link ?>'"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
                 <?php endif ?>
             <?php endforeach ?>
-            <?php 
-            // var_dump($attributes);
-            ?>
 
         <?php endif ?>
 
@@ -141,14 +156,37 @@ $table = $this->el('table', [
 
     </table>
 
-<?php if ($props['table_responsive'] == 'overflow') : ?>
+<!-- <?php if ($props['table_responsive'] == 'overflow') : ?> -->
 </div>
+<!-- <?php endif ?> -->
+
+<?php if ($props['enable_filters'] == true) : ?>
+    <?= $filterContainer ?>
+    <?php for($i = 0; $i<count($attributes);++$i) : 
+        $index = trim(array_keys($attributes)[$i]);
+        ?>
+
+        <?php if($i==0) : ?>
+            <div class="uk-first-column">
+        <?php else : ?>
+            <div class="uk-grid-margin uk-first-column">
+        <?php endif?>
+
+        <div class="uk-card uk-card-body uk-card-default uk-padding-small">
+            <h3 class="uk-h5"><?= $index ?></h3>
+            <div class="uk-flex uk-flex-column">
+            <?php foreach($attributes[$index] as $attr) :
+                $attr = trim($attr); 
+                $tagvalue="tag-".preg_replace('/\s+/', '-', $index)."-value-".preg_replace('/\s+/', '-', $attr);
+                ?>
+
+                <label><input class="uk-checkbox" type="checkbox" value="<?= $tagvalue?>"> <?= $attr ?> </label>
+            <?php endforeach ?>
+            <!-- Settare onClick (passa come attributo 'nomeattributo'-'termine' es: tecnologie-cloud oppure ruolo-cloud-engineer) -->
+            </div>       
+            
+        </div>
+        </div>
+    <?php endfor ?>
+    </div>
 <?php endif ?>
-
-<?php if ($props['enable_filters'] == true){
-    // var_dump($child->props['attributes']);
-    // $products = wc_get_products( array( 'status' => 'publish', 'limit' => -1 ) );
-    // var_dump($product);
-}
-
-?>
