@@ -1,17 +1,10 @@
 <?php
-namespace YOOtheme;
+use YOOtheme\Arr;
+use YOOtheme\Str;
+
 require_once'filter.php';
 
-$attributes = array(
-    'Tecnologie'=>array(),
-    'Ruolo'=>array(),
-    'Vendor'=>array(),
-    'Modalita di erogazione'=>array(),
-    'Durata corso'=>array(),
-    'Calendario'=>array(),
-    'Sede'=>array(),
-    'Status'=>array()
-);
+
 
 $text_fields = ['title', 'site', 'date', 'price'];
 
@@ -125,17 +118,18 @@ function printAttrTags($attributes){
         <tbody>
 
         
-        <?php if ($props['enable_filters'] == true):?>
+        <?php if ($props['enable_filters'] == true): ?>
+            <?php
             
-            <?php 
+                $attributes = getEmptyAttributeArray($children[0]->props['attributes'],$unwanted_array);
                 foreach ($children as $i => $child) : ?>
                 <?php 
                     if(strlen($child->props['attributes'])>1){
                         //GET ALL ATTRIBUTES           
-                        $attributes = getData($child->props['attributes'], $attributes);
+                        $attributes = getData($child->props['attributes'], $attributes, $unwanted_array);
 
                         //GET ATTRIBUTE OF THE CHILD PRODUCT
-                        $singleAttributes = getSingleData($child->props['attributes']);
+                        $singleAttributes = getSingleData($child->props['attributes'], $unwanted_array);
                     }
                     $link = $child->props['link'];
 
