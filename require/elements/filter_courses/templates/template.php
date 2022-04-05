@@ -180,7 +180,7 @@ function printAttrTags($attributes){
 <?php if ($props['enable_filters'] == true) : ?>
     <?= $filterContainer ?>
 
-    <h3 class="uk-h5">Cerca disponibilità<input type="text" id="txtDate"></h3>
+    <h3 class="uk-h5">Cerca disponibilità<input type="text" id="txtDate" ></h3>
     
 
     <?php for($i = 0; $i<count($attributes);++$i) : 
@@ -220,6 +220,8 @@ function printAttrTags($attributes){
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script type="text/javascript">
+    var daysAvailable = {};
+
     $.fn.dataStartsWith = function(p) {
         var pCamel = p.replace(/-([a-z])/ig, function(m,$1) { return $1.toUpperCase(); });
         return this.filter(function(i, el){
@@ -237,33 +239,60 @@ function printAttrTags($attributes){
         }
     });
 
-    var daysAvairable = {};
-    $(".corso").each(function(){
-        var date = new Date($(this).attr("tag-calendario"));
-        date.setHours(0,0,0,0);
-        daysAvairable[date] = date.toString();
-        //QUANDO VOGLIO FAR SCOMPARIRE/COMPARIRE QUALCOSA BASTA CHECKARE/UNCHECKARE LE CHECKBOX
-    });
-    console.log(daysAvairable);
-    // datepicker
-    $('#txtDate').datepicker({
-        showButtonPanel: true,
-        closeText: 'Svuota',
-        onClose: function (dateText, inst) {
-            if ($(window.event.srcElement).hasClass('ui-datepicker-close')) {
-                document.getElementById(this.id).value = '';
-            }
-        },
-        beforeShowDay: function( date ) {
-            var highlight = daysAvairable[date];
-            if( highlight ) {
-                    return [true, "event", "Uno o più corsi sono disponibili in questo giorno"]; 
-            } else {
-                    return [false, ''];
-            }
-            }
-    });
 
+    //TODO UNA SCELTO UN GIORNO ALLORA PER TUTTI I CORSI RIMUOVERE GLI ATTRIBUTI
+    //PROVARE CON: SETTARE TUTTI I CORSIDAMOSTRARE->OK A FALSE TRANNE QUELLI DI QUEL GIORNO
+    
+    
+
+    function getDays(){
+        daysAvailable = [];
+        $(".corso").each(function(){
+            if(!$(this).hasClass("uk-hidden")){
+                var date = new Date($(this).attr("tag-calendario"));
+                date.setHours(0,0,0,0);
+                daysAvailable[date] = date.toString();
+            }
+        });
+    }
+
+    function initDatepicker(){
+        getDays();
+        console.log(daysAvailable);
+        // datepicker
+        $('#txtDate').datepicker({
+            showButtonPanel: true,
+            closeText: 'Svuota',
+            onClose: function (dateText, inst) {
+                if ($(window.event.srcElement).hasClass('ui-datepicker-close')) {
+                    document.getElementById(this.id).value = '';
+                }
+            },
+            beforeShowDay: function( date ) {
+                console.log("called before show day");
+                var highlight = daysAvailable[date];
+                if( highlight ) {
+                    return [true, "event", "Uno o più corsi sono disponibili in questo giorno"]; 
+                } else {
+                    return [false, ''];
+                }
+            },
+            onSelect: function(dateText) {
+                $(".corso").each(function(){
+                    var dataDatepicker = dateText.split("/");
+                    var joinedDataDatepicker = dataDatepicker[2]+"-"+dataDatepicker[0]+"-"+dataDatepicker[1];
+                    console.log({joinedDataDatepicker, dateCorso:$(this).attr("tag-calendario")});
+                    if()
+                    //QUELLI CHE NON HANNO LA STESSA DATA DOVRANNO ESSERE INSERITI ALL'INTERNO DI CorsiDaMostrare, con la stessa
+                    //metodologia utilizzata dai checkbox
+                });
+            }
+        });
+    }
+
+    //initialize datepicker
+    initDatepicker();
+    
         
 
     
@@ -367,8 +396,13 @@ function printAttrTags($attributes){
                     });
                 }
             }
+            getDays();
         }
     });
+
+    function manageFilters(){
+        
+    }
 
     
 </script>
