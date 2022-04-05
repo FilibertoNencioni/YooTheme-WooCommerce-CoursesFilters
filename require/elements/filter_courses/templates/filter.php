@@ -107,4 +107,60 @@ function getEmptyAttributeArray($htmlContent, $unwanted_array){
     $attributes = array_fill_keys($aDataTableHeaderHTML, array());
     return $attributes;
 }
+
+
+/**
+ * Transform a string with format (DD "mese" YYYY) to a date (layout: ITALIANO) (format YYYY-MM-DD)
+ *
+ * @param string $stringDate  The string that will be converted
+ 
+ * @return Date The string converted to date
+ */ 
+function stringToDate($stringDate){
+    //input: dd "mese" YYYY
+    $month = "";
+    $arraydate = explode(" ", $stringDate);
+    switch($arraydate[1]){
+        case "Gennaio":
+            $month = "01";
+            break;
+        case "Febbario":
+            $month = "02";
+            break;
+        case "Marzo":
+            $month = "03";
+            break;
+        case "Aprile":
+            $month = "04";
+            break;
+        case "Maggio":
+            $month = "05";
+            break;
+        case "Giugno":
+            $month = "06";
+            break;
+        case "Luglio":
+            $month = "07";
+            break;
+        case "Agosto":
+            $month = "08";
+            break;
+        case "Settembre":
+            $month = "09";
+            break;
+        case "Ottobre":
+            $month = "10";
+            break;
+        case "Novembre":
+            $month = "11";
+            break;
+        case "Dicembre":
+            $month = "12";
+            break;
+    }
+
+    $formattedDate = $arraydate[2]."-".$month."-".$arraydate[0];
+    return($formattedDate);
+}
+
 ?>

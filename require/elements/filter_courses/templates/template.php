@@ -1,10 +1,16 @@
+<style>
+.event a {
+    background-color: #42B373 !important;
+    background-image :none !important;
+    color: #ffffff !important;
+}
+
+</style>
+
 <?php
 use YOOtheme\Arr;
 use YOOtheme\Str;
-
 require_once'filter.php';
-
-
 
 $text_fields = ['title', 'site', 'date', 'price'];
 
@@ -80,6 +86,8 @@ function printAttrTags($attributes){
     echo $tags;
 }
 
+
+
 ?>
 
     <?= $container ?>
@@ -129,14 +137,27 @@ function printAttrTags($attributes){
                         //GET ATTRIBUTE OF THE CHILD PRODUCT
                         $singleAttributes = getSingleData($child->props['attributes'], $unwanted_array);
                     }
+
+                    if(strlen($child->props['date'])>1){
+                        $date = stringToDate($child->props['date']);
+                    }
+
                     $link = $child->props['link'];
 
                 ?>
                 <?php if(!Str::length($link)) : ?>
-                    <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes) ?>><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
+                    <?php if(Str::length($date)) : ?>
+                        <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes) ?> tag-calendario="<?= $date ?>"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
+                    <?php else : ?>
+                        <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes) ?>><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
+                    <?php endif ?>
 
                 <?php else : ?>
-                    <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes) ?> style="cursor:pointer;" onclick="window.location='<?= $link ?>'"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
+                    <?php if(Str::length($date)) : ?>
+                        <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes) ?> style="cursor:pointer;" onclick="window.location='<?= $link ?>'" tag-calendario="<?=$date?>"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
+                    <?php else : ?>
+                        <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes) ?> style="cursor:pointer;" onclick="window.location='<?= $link ?>'"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
+                    <?php endif ?>
 
                 <?php endif ?>
             <?php endforeach ?>
@@ -158,6 +179,10 @@ function printAttrTags($attributes){
 
 <?php if ($props['enable_filters'] == true) : ?>
     <?= $filterContainer ?>
+
+    <h3 class="uk-h5">Cerca disponibilità<input type="text" id="txtDate"></h3>
+    
+
     <?php for($i = 0; $i<count($attributes);++$i) : 
         $index = trim(array_keys($attributes)[$i]);
         ?>
@@ -189,7 +214,10 @@ function printAttrTags($attributes){
     </div>
 <?php endif ?>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script type="text/javascript">
     $.fn.dataStartsWith = function(p) {
@@ -209,14 +237,44 @@ function printAttrTags($attributes){
         }
     });
 
+    var daysAvairable = {};
+    $(".corso").each(function(){
+        var date = new Date($(this).attr("tag-calendario"));
+        date.setHours(0,0,0,0);
+        daysAvairable[date] = date.toString();
+        //QUANDO VOGLIO FAR SCOMPARIRE/COMPARIRE QUALCOSA BASTA CHECKARE/UNCHECKARE LE CHECKBOX
+    });
+    console.log(daysAvairable);
+    // datepicker
+    $('#txtDate').datepicker({
+        showButtonPanel: true,
+        closeText: 'Svuota',
+        onClose: function (dateText, inst) {
+            if ($(window.event.srcElement).hasClass('ui-datepicker-close')) {
+                document.getElementById(this.id).value = '';
+            }
+        },
+        beforeShowDay: function( date ) {
+            var highlight = daysAvairable[date];
+            if( highlight ) {
+                    return [true, "event", "Uno o più corsi sono disponibili in questo giorno"]; 
+            } else {
+                    return [false, ''];
+            }
+            }
+    });
+
+        
+
+    
+    
     $(".filters :checkbox").click(function() {
         //Populating the array with all the courses, this is used to see which courses match the attributes
         const corsiDaMostrare = [];
 
         $(".corso").each(function(){
-            corsiDaMostrare.push({corso: $(this).attr('id'), ok:true });
+            corsiDaMostrare.push({corso: $(this).attr('id'), ok:true});
         });
-
         $(".filters :checkbox:checked").each(function() {
             //Check match of attributes
             for (let i = 0; i < classNames.length; i++) {
@@ -314,3 +372,5 @@ function printAttrTags($attributes){
 
     
 </script>
+
+
