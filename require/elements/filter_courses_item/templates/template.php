@@ -1,7 +1,6 @@
 <?php
 namespace YOOtheme;
 
-var_dump($filtered);
 foreach ($filtered as $j => $field) {
         echo $this->el('td', [
 
