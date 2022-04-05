@@ -232,7 +232,7 @@ function printAttrTags($attributes){
                             const selectedCorso = $(this);
                             let corsoTagValues = selectedCorso.attr(tag).split(",");
                             for(let j = 0; j<corsoTagValues.length;j++){
-                                let name = corsoTagValues[j].trim().replace(" ","-");
+                                let name = corsoTagValues[j].trim().replaceAll(" ","-");
                                 if(tagValue === name){
                                     attrFound=true;
                                 }
@@ -265,10 +265,10 @@ function printAttrTags($attributes){
                 if(!element.classList.contains('uk-hidden')){
                     element.classList.add('uk-hidden');
                     classNames.forEach(function(value){
-                        let tagPrefix = value.replace("filters","tag");
+                        let tagPrefix = value.replaceAll("filters","tag");
                         let currentTags=$(element).attr(tagPrefix).split(", ");
                         currentTags.forEach(function(value){
-                            value = value.replace(" ","-");
+                            value = value.replaceAll(" ","-");                            
                             $('.filters :checkbox').each(function(){
                                 if($(this).attr(tagPrefix)==value.trim()){
                                     var label = $("label[for='"+this.id+"']");
@@ -292,7 +292,8 @@ function printAttrTags($attributes){
                         let tagPrefix = value.replace("filters","tag");
                         let currentTags=$(element).attr(tagPrefix).split(", ");
                         currentTags.forEach(function(value){
-                            value = value.replace(" ","-");
+                            value = value.replaceAll(" ","-");
+                            
                             $('.filters :checkbox').each(function(){
                                 if($(this).attr(tagPrefix)==value.trim()){
                                     var label = $("label[for='"+this.id+"']");
