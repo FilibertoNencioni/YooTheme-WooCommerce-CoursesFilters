@@ -173,13 +173,15 @@ function printAttrTags($attributes){
         <div class="uk-card uk-card-body uk-card-default uk-padding-small">
             <h3 class="uk-h5"><?= $index ?></h3>
             <div class="uk-flex uk-flex-column filters-<?= strtolower(preg_replace('/\s+/', '-', $index)) ?>">
-            <?php foreach($attributes[$index] as $attr) :
+            <?php 
+            foreach($attributes[$index] as $key => $attr) :
                 $attrvalue = trim($attr->get_name()); 
                 $nTimes = $attr ->get_nTimes();
                 $tagvalue ='tag-'.preg_replace('/\s+/', '-', $index).'="'.preg_replace('/\s+/', '-', $attrvalue).'"';
                 ?>
 
-                <label><input class="uk-checkbox" type="checkbox" <?= $tagvalue?>> <?= $attrvalue ?> <span class="count">(<?= $nTimes ?>)</span></label>
+                <label for="check-<?=$i?>-<?=$key?>"> <input class="uk-checkbox" type="checkbox" <?= $tagvalue?> id="check-<?=$i?>-<?=$key?>"> <?= $attrvalue ?> (<span class="count" id="span-<?=$i?>-<?=$key?>"><?= $nTimes ?></span>)</label>
+                
             <?php endforeach ?>
             </div>       
             
@@ -192,8 +194,15 @@ function printAttrTags($attributes){
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script type="text/javascript">
-    // var removedTags=[];
-
+    $.fn.dataStartsWith = function(p) {
+        var pCamel = p.replace(/-([a-z])/ig, function(m,$1) { return $1.toUpperCase(); });
+        return this.filter(function(i, el){
+            return Object.keys(el.dataset).some(function(v){
+            return v.indexOf(pCamel) > -1;
+            });
+        });
+    };
+    
     var classNames = [];
     $('div[class*="filters-"]').each(function(i, el){
         var name = (el.className.match(/(^|\s)(filters\-[^\s]*)/) || [,,''])[2];
@@ -250,27 +259,58 @@ function printAttrTags($attributes){
             }
 
         });
-        console.log(corsiDaMostrare);
         for(let i = 0; i < corsiDaMostrare.length; i++){
             var element = document.getElementById(corsiDaMostrare[i].corso);
+
+            //Hide courses that don't match the filters and hide the filters with 0 courses shown 
             if(corsiDaMostrare[i].ok === false){
-                element.classList.add('uk-hidden');
-                // if(!removedTags.includes(corsiDaMostrare[i].corso)){
-                //     removedTags.push(corsiDaMostrare[i].corso);
-                // }
+                if(!element.classList.contains('uk-hidden')){
+                    element.classList.add('uk-hidden');
+                    classNames.forEach(function(value){
+                        let tagPrefix = value.replace("filters","tag");
+                        let currentTags=$(element).attr(tagPrefix).split(", ");
+                        currentTags.forEach(function(value){
+                            value = value.replace(" ","-");
+                            $('.filters :checkbox').each(function(){
+                                if($(this).attr(tagPrefix)==value.trim()){
+                                    var label = $("label[for='"+this.id+"']");
+                                    var span = label.children('span');
+                                    var spanValue = parseInt(span.text())-1;
+                                    span.text(spanValue);
+                                    if(spanValue === 0){
+                                        label.addClass("uk-hidden");
+                                    }
+                                }
+                            });
+                        })
+                    });
+                }
+
+            //Show courses and filters
             }else{
                 if(element.classList.contains('uk-hidden')){
                     element.classList.remove('uk-hidden');
-                    // const index = removedTags.indexOf(corsiDaMostrare[i].corso);
-                    // if(index > -1){
-                    //     removedTags.splice(index, 1); 
-                    // }
+                    classNames.forEach(function(value){
+                        let tagPrefix = value.replace("filters","tag");
+                        let currentTags=$(element).attr(tagPrefix).split(", ");
+                        currentTags.forEach(function(value){
+                            value = value.replace(" ","-");
+                            $('.filters :checkbox').each(function(){
+                                if($(this).attr(tagPrefix)==value.trim()){
+                                    var label = $("label[for='"+this.id+"']");
+                                    var span = label.children('span');
+                                    var spanValue = parseInt(span.text())+1;
+                                    span.text(spanValue);
+                                    if(spanValue > 0){
+                                        label.removeClass("uk-hidden");
+                                    }
+                                }
+                            });
+                        })
+                    });
                 }
             }
         }
-        
-        //TODO
-        //Se il nTimes è pari a 0 allora nascondere (creare funzione)
     });
 
     
