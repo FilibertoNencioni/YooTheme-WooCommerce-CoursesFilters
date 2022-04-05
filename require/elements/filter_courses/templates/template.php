@@ -41,6 +41,7 @@ $filterContainer = $this->el('div',[
 $el = $this->el('div', [
 
     'class' => [
+        'uk-overflow-auto {@table_responsive: overflow}',
         'uk-width-expand@m',
         'uk-flex-last',
         'uk-margin-left'
