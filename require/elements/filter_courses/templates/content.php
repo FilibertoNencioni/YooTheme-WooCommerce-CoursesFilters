@@ -1,7 +1,7 @@
 <?php
 // Questo file viene usato per salvare il 
 use YOOtheme\Arr;
-$fields = ['image', 'title', 'site', 'date', 'price', 'link'];
+$fields = ['image', 'title', 'site', 'date', 'price'];
 
 // Find empty fields
 $filtered = array_values(Arr::filter($fields, function ($field) use ($props, $children) {

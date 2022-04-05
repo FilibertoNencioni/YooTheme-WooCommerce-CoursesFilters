@@ -10,10 +10,10 @@ $text_fields = ['title', 'site', 'date', 'price'];
 
 switch ($props['table_order']) {
     case 1:
-        $fields = ['image', 'title', 'site', 'date', 'price', 'link'];
+        $fields = ['image', 'title', 'site', 'date', 'price'];
         break;
     case 2:
-        $fields = ['image', 'title', 'date', 'site', 'price', 'link'];
+        $fields = ['image', 'title', 'date', 'site', 'price'];
         break;
 }
 
@@ -102,9 +102,6 @@ function printAttrTags($attributes){
 
                             // Text align need to be set for table heading
                             'uk-text-{text_align}[@{text_align_breakpoint} [uk-text-{text_align_fallback}] {@!text_align: justify}]' => !$lastColumn || !$props['table_last_align'],
-
-                            // Text nowrap
-                            'uk-text-nowrap' => $field == 'link' || in_array($field, $text_fields) && $props["table_width_{$field}"] == 'shrink',
                         ],
 
                     ], $props["table_head_{$field}"])->render($props);
