@@ -180,7 +180,7 @@ function printAttrTags($attributes){
 <?php if ($props['enable_filters'] == true) : ?>
     <?= $filterContainer ?>
 
-    <h3 class="uk-h5">Cerca disponibilità<input type="text" id="txtDate" ></h3>
+    <h3 class="uk-h5">Cerca disponibilità<input type="text" id="txtDate"></h3>
     
 
     <?php for($i = 0; $i<count($attributes);++$i) : 
@@ -239,12 +239,7 @@ function printAttrTags($attributes){
         }
     });
 
-
-    //TODO UNA SCELTO UN GIORNO ALLORA PER TUTTI I CORSI RIMUOVERE GLI ATTRIBUTI
-    //PROVARE CON: SETTARE TUTTI I CORSIDAMOSTRARE->OK A FALSE TRANNE QUELLI DI QUEL GIORNO
     
-    
-
     function getDays(){
         daysAvailable = [];
         $(".corso").each(function(){
@@ -266,6 +261,7 @@ function printAttrTags($attributes){
             onClose: function (dateText, inst) {
                 if ($(window.event.srcElement).hasClass('ui-datepicker-close')) {
                     document.getElementById(this.id).value = '';
+                    checkCorsi();
                 }
             },
             beforeShowDay: function( date ) {
@@ -277,16 +273,7 @@ function printAttrTags($attributes){
                     return [false, ''];
                 }
             },
-            onSelect: function(dateText) {
-                $(".corso").each(function(){
-                    var dataDatepicker = dateText.split("/");
-                    var joinedDataDatepicker = dataDatepicker[2]+"-"+dataDatepicker[0]+"-"+dataDatepicker[1];
-                    console.log({joinedDataDatepicker, dateCorso:$(this).attr("tag-calendario")});
-                    if()
-                    //QUELLI CHE NON HANNO LA STESSA DATA DOVRANNO ESSERE INSERITI ALL'INTERNO DI CorsiDaMostrare, con la stessa
-                    //metodologia utilizzata dai checkbox
-                });
-            }
+            onSelect: ()=>checkCorsi()
         });
     }
 
@@ -296,8 +283,8 @@ function printAttrTags($attributes){
         
 
     
-    
-    $(".filters :checkbox").click(function() {
+    function checkCorsi(){
+        console.log("called");
         //Populating the array with all the courses, this is used to see which courses match the attributes
         const corsiDaMostrare = [];
 
@@ -309,12 +296,13 @@ function printAttrTags($attributes){
             for (let i = 0; i < classNames.length; i++) {
                 let tag = classNames[i].replace('filters','tag');
                 let tagValue = $(this).attr(tag);
-
+                console.log(classNames);
 
                 if(tagValue){
                     $(".corso").each(function(){
                         let attrFound = false;
 
+                        
                         if($(this).attr(tag)){
                             const selectedCorso = $(this);
                             let corsoTagValues = selectedCorso.attr(tag).split(",");
@@ -342,8 +330,32 @@ function printAttrTags($attributes){
                     })
                 }
             }
-
         });
+        var date =$("#txtDate").val();
+        console.log({date: date});
+        if(date){
+            var dataDatepicker = date.split("/");
+            var joinedDataDatepicker = dataDatepicker[2]+"-"+dataDatepicker[0]+"-"+dataDatepicker[1];
+            
+            $(".corso").each(function(){
+                if($(this).attr("tag-calendario")!==joinedDataDatepicker){
+                    console.log({corso: $(this).attr("tag-calendario"), datepicker: joinedDataDatepicker})
+                    var selectedCorso = $(this);
+                    let corsoIndex = corsiDaMostrare.findIndex(function(elem){
+                        if(elem.corso === selectedCorso.eq(0).attr('id')){
+                            return elem;
+                        }
+                    });
+                        if(corsoIndex !== -1){
+                            corsiDaMostrare[corsoIndex].ok = false;
+                        }else{
+                            console.log("ERRORE - INDICE IN RICERCA NON TROVATO");
+                        }
+                    }
+            });
+                    
+        }
+        console.log(corsiDaMostrare);
         for(let i = 0; i < corsiDaMostrare.length; i++){
             var element = document.getElementById(corsiDaMostrare[i].corso);
 
@@ -398,11 +410,12 @@ function printAttrTags($attributes){
             }
             getDays();
         }
+    }
+    
+    $(".filters :checkbox").click(function() {
+        checkCorsi();
     });
 
-    function manageFilters(){
-        
-    }
 
     
 </script>
