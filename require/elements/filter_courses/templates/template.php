@@ -137,7 +137,7 @@ function printAttrTags($attributes){
                         //GET ATTRIBUTE OF THE CHILD PRODUCT
                         $singleAttributes = getSingleData($child->props['attributes'], $unwanted_array);
                     }
-
+                    $date = "";
                     if(strlen($child->props['date'])>1){
                         $date = stringToDate($child->props['date']);
                     }
@@ -180,8 +180,9 @@ function printAttrTags($attributes){
 <?php if ($props['enable_filters'] == true) : ?>
     <?= $filterContainer ?>
 
-    <h3 class="uk-h5">Cerca disponibilità<input type="text" id="txtDate"></h3>
-    
+    <?php if(Str::length($date)) : ?>
+        <h3 class="uk-h5">Cerca disponibilità<input type="text" id="txtDate"></h3>
+    <?php endif ?>
 
     <?php for($i = 0; $i<count($attributes);++$i) : 
         $index = trim(array_keys($attributes)[$i]);
@@ -253,7 +254,6 @@ function printAttrTags($attributes){
 
     function initDatepicker(){
         getDays();
-        console.log(daysAvailable);
         // datepicker
         $('#txtDate').datepicker({
             showButtonPanel: true,
@@ -265,7 +265,6 @@ function printAttrTags($attributes){
                 }
             },
             beforeShowDay: function( date ) {
-                console.log("called before show day");
                 var highlight = daysAvailable[date];
                 if( highlight ) {
                     return [true, "event", "Uno o più corsi sono disponibili in questo giorno"]; 
@@ -277,14 +276,11 @@ function printAttrTags($attributes){
         });
     }
 
-    //initialize datepicker
-    initDatepicker();
     
         
 
     
     function checkCorsi(){
-        console.log("called");
         //Populating the array with all the courses, this is used to see which courses match the attributes
         const corsiDaMostrare = [];
 
@@ -296,7 +292,6 @@ function printAttrTags($attributes){
             for (let i = 0; i < classNames.length; i++) {
                 let tag = classNames[i].replace('filters','tag');
                 let tagValue = $(this).attr(tag);
-                console.log(classNames);
 
                 if(tagValue){
                     $(".corso").each(function(){
@@ -332,14 +327,12 @@ function printAttrTags($attributes){
             }
         });
         var date =$("#txtDate").val();
-        console.log({date: date});
         if(date){
             var dataDatepicker = date.split("/");
             var joinedDataDatepicker = dataDatepicker[2]+"-"+dataDatepicker[0]+"-"+dataDatepicker[1];
             
             $(".corso").each(function(){
                 if($(this).attr("tag-calendario")!==joinedDataDatepicker){
-                    console.log({corso: $(this).attr("tag-calendario"), datepicker: joinedDataDatepicker})
                     var selectedCorso = $(this);
                     let corsoIndex = corsiDaMostrare.findIndex(function(elem){
                         if(elem.corso === selectedCorso.eq(0).attr('id')){
@@ -355,7 +348,6 @@ function printAttrTags($attributes){
             });
                     
         }
-        console.log(corsiDaMostrare);
         for(let i = 0; i < corsiDaMostrare.length; i++){
             var element = document.getElementById(corsiDaMostrare[i].corso);
 
@@ -411,7 +403,7 @@ function printAttrTags($attributes){
             getDays();
         }
     }
-    
+
     $(".filters :checkbox").click(function() {
         checkCorsi();
     });
@@ -420,4 +412,11 @@ function printAttrTags($attributes){
     
 </script>
 
+<?php if(Str::length($date)) : ?>
+    <script type="text/javascript">
+    //initialize datepicker
+    initDatepicker();
+
+    </script>
+<?php endif ?>
 
