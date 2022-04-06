@@ -526,11 +526,16 @@
             }
         },
         "date_search_title": {
-            "label": "Title",
+            "label": "Datepicker title",
             "description": "Enter the header for the datepicker filter section.",
             "attrs": {
                 "placeholder": "Cerca disponibilità"
             }
+        },
+        "sort_attributes":{
+            "label": "Sort attributes",
+            "type":"textarea",
+            "description":"Define the order of the attributes in the filter by writing them separated by comma. If you skip an attribute it won't be shown. The default name of 'site' and 'date' attributes are as written right now"
         }
     },
     "fieldset": {
@@ -557,15 +562,9 @@
                             "type": "group",
                             "divider":true,
                             "fields":[
-                                "enable_filters"
-                            ]
-                        },
-                        {
-                            "label":"Select date Title",
-                            "type":"group",
-                            "divider":true,
-                            "fields":[
-                                "date_search_title"
+                                "enable_filters",
+                                "date_search_title",
+                                "sort_attributes"
                             ]
                         },
                         {

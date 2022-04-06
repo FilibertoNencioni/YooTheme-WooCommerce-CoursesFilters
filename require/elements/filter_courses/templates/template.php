@@ -128,13 +128,25 @@ function printAttrTags($attributes){
         <tbody>
 
         
-        <?php if ($props['enable_filters'] == true): ?>
-            <?php
-            
+        <?php if ($props['enable_filters'] == true): 
+
+                $attrToHide = [];
+                if(Str::length($props['sort_attributes'])){
+                    $sortAttributesArr = explode(",",$props['sort_attributes']);
+                    foreach($sortAttributesArr as $key =>$singleAttr){
+                        $singleAttr = str_replace(" ","-",trim($singleAttr));
+                        // $obj = new stdClass;
+                        // $obj->attribute=$singleAttr;
+                        // $obj->position=$key+1;
+                        // $attrToHide[]=$obj;
+                        $attrToHide[]=$singleAttr;
+                    }
+                }
+
                 $attributes = getEmptyAttributeArray($children[0]->props['attributes']);
                 foreach ($children as $i => $child) : ?>
                 <?php 
-                    if(strlen($child->props['attributes'])>1){
+                    if(Str::length($child->props['attributes'])){
                         //GET ALL ATTRIBUTES           
                         $attributes = getData($child->props['attributes'], $attributes);
 
@@ -142,12 +154,12 @@ function printAttrTags($attributes){
                         $singleAttributes = getSingleData($child->props['attributes']);
                     }
                     $date = "";
-                    if(strlen($child->props['date'])>1){
+                    if(Str::length($child->props['date'])){
                         $date = stringToDate($child->props['date']);
                     };
 
                     
-                    if(strlen($child->props['site'])>1){
+                    if(Str::length($child->props['site'])){
                         $attributes = insertSite($attributes,$child->props['site']);
                     };
 
@@ -190,7 +202,23 @@ function printAttrTags($attributes){
     <?= $filterContainer ?>
 
     <?php if(Str::length($date)) : ?>
-        <h3 class="uk-h5">
+        <?php if(count($attrToHide)> 0) : 
+        $position = 0;
+            foreach($attrToHide as $key=>$attr){
+                if(strtolower($attr)=="date"){
+                    $position = $key+1;
+                }
+            }
+            ?>
+            <?php if($position == 0) : ?>
+                <h3 class="uk-h5 uk-hidden">
+            <?php else : ?>
+                <h3 class="uk-h5" data-sort="<?=$position?>" >
+            <?php endif ?>
+        <?php else : ?>
+            <h3 class="uk-h5">
+        <?php endif ?>
+
             <?php if(Str::length($props['date_search_title'])) : ?>
                 <?= $props['date_search_title'] ?>
             <?php else : ?>
@@ -209,7 +237,23 @@ function printAttrTags($attributes){
             <div class="uk-grid-margin uk-first-column">
         <?php endif?>
 
-        <div class="uk-card uk-card-body uk-card-default uk-padding-small">
+        <?php if(count($attrToHide)> 0) : 
+         $position = 0;
+         foreach($attrToHide as $key=>$attr){
+             if(strtolower($attr)==strtolower($index)){
+                 $position = $key+1;
+             }
+         }
+         ?>
+         <?php if($position == 0) : ?>
+            <div class="uk-card uk-card-body uk-card-default uk-padding-small uk-hidden">
+         <?php else : ?>
+            <div class="uk-card uk-card-body uk-card-default uk-padding-small" data-sort="<?= $position ?>">
+         <?php endif ?>
+
+        <?php else : ?>
+            <div class="uk-card uk-card-body uk-card-default uk-padding-small">
+        <?php endif ?>
             <h3 class="uk-h5"><?= $index ?></h3>
             <div class="uk-flex uk-flex-column filters-<?= strtolower(preg_replace('/\s+/', '-', $index)) ?>">
             <?php 
