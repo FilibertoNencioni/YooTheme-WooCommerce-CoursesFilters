@@ -181,7 +181,13 @@ function printAttrTags($attributes){
     <?= $filterContainer ?>
 
     <?php if(Str::length($date)) : ?>
-        <h3 class="uk-h5">Cerca disponibilità<input type="text" id="txtDate"></h3>
+        <h3 class="uk-h5">
+            <?php if(Str::length($props['date_search_title'])) : ?>
+                <?= $props['date_search_title'] ?>
+            <?php else : ?>
+                Cerca disponibilità
+            <?php endif ?>
+        <input type="text" id="txtDate" style="width:97%"></h3>
     <?php endif ?>
 
     <?php for($i = 0; $i<count($attributes);++$i) : 

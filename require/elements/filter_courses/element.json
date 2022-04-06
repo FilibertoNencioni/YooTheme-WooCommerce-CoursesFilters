@@ -524,6 +524,13 @@
             "attrs": {
                 "debounce": 500
             }
+        },
+        "date_search_title": {
+            "label": "Title",
+            "description": "Enter the header for the datepicker filter section.",
+            "attrs": {
+                "placeholder": "Cerca disponibilità"
+            }
         }
     },
     "fieldset": {
@@ -551,6 +558,14 @@
                             "divider":true,
                             "fields":[
                                 "enable_filters"
+                            ]
+                        },
+                        {
+                            "label":"Select date Title",
+                            "type":"group",
+                            "divider":true,
+                            "fields":[
+                                "date_search_title"
                             ]
                         },
                         {
