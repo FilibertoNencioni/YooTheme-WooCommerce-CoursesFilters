@@ -81,7 +81,11 @@ function printAttrTags($attributes){
     $tags = "";
     for($i = 0; $i<count($attributes);++$i){
         $index = trim(array_keys($attributes)[$i]);
-        $tags.= " tag-".preg_replace('/\s+/', '-', $index)."='".$attributes[$index][0]."'";
+        if(count($attributes[$index])>0){
+            $tags.= " tag-".preg_replace('/\s+/', '-', $index)."='".$attributes[$index][0]."'";
+        }else{
+            $tags.= " tag-".preg_replace('/\s+/', '-', $index)."=''";
+        }
     }
     echo $tags;
 }
@@ -140,7 +144,12 @@ function printAttrTags($attributes){
                     $date = "";
                     if(strlen($child->props['date'])>1){
                         $date = stringToDate($child->props['date']);
-                    }
+                    };
+
+                    
+                    if(strlen($child->props['site'])>1){
+                        $attributes = insertSite($attributes,$child->props['site']);
+                    };
 
                     $link = $child->props['link'];
 

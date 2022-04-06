@@ -7,6 +7,7 @@ $unwanted_array = array('Š'=>'S', 'š'=>'s', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', '
 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o',
 'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y' );
 
+define("DEFAULT_SITE_KEY","Site");
 class Attribute{
     public $name;
     public $nTimes;
@@ -104,6 +105,7 @@ function getEmptyAttributeArray($htmlContent, $unwanted_array){
     {
         $aDataTableHeaderHTML[] = strtr(utf8_decode(trim($NodeHeader->textContent)),$unwanted_array);
     }
+    $aDataTableHeaderHTML[]=DEFAULT_SITE_KEY;
     $attributes = array_fill_keys($aDataTableHeaderHTML, array());
     return $attributes;
 }
@@ -163,4 +165,31 @@ function stringToDate($stringDate){
     return($formattedDate);
 }
 
+function insertSite($attributes, $site){
+    
+    
+    $innerIndex = -1;
+
+    if(count($attributes[DEFAULT_SITE_KEY])>0){
+        $attrFoundIndex = 0;
+        foreach($attributes[DEFAULT_SITE_KEY] as $attr){
+            if($attr->get_name() == $site){
+                $innerIndex = $attrFoundIndex;
+            }
+            $attrFoundIndex++;
+        }
+    }
+
+    if($innerIndex == -1){
+        $newAttribute = new Attribute();
+        $newAttribute -> set_name($site);
+        $newAttribute -> set_nTimes(1);
+        array_push($attributes[DEFAULT_SITE_KEY], $newAttribute);
+    }else{
+        $prevTimes = $attributes[DEFAULT_SITE_KEY][$innerIndex]->get_nTimes()+1;
+        $attributes[DEFAULT_SITE_KEY][$innerIndex]->set_nTimes($prevTimes);
+    }
+
+    return $attributes;
+}
 ?>
