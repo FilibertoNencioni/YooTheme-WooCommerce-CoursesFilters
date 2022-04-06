@@ -131,7 +131,7 @@ function printAttrTags($attributes){
         <?php if ($props['enable_filters'] == true): ?>
             <?php
             
-                $attributes = getEmptyAttributeArray($children[0]->props['attributes'],$unwanted_array);
+                $attributes = getEmptyAttributeArray($children[0]->props['attributes']);
                 foreach ($children as $i => $child) : ?>
                 <?php 
                     if(strlen($child->props['attributes'])>1){
@@ -139,7 +139,7 @@ function printAttrTags($attributes){
                         $attributes = getData($child->props['attributes'], $attributes);
 
                         //GET ATTRIBUTE OF THE CHILD PRODUCT
-                        $singleAttributes = getSingleData($child->props['attributes'], $unwanted_array);
+                        $singleAttributes = getSingleData($child->props['attributes']);
                     }
                     $date = "";
                     if(strlen($child->props['date'])>1){

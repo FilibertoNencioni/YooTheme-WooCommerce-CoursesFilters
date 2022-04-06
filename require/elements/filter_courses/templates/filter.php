@@ -1,11 +1,11 @@
 <?php 
 
-global $unwanted_array;
-$unwanted_array = array('Š'=>'S', 'š'=>'s', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E',
+define("UNWANTED_ARRAY",array('Š'=>'S', 'š'=>'s', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E',
 'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U',
 'Ú'=>'U', 'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss', 'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a', 'å'=>'a', 'æ'=>'a', 'ç'=>'c',
 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o',
-'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y' );
+'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y' ));
+
 
 define("DEFAULT_SITE_KEY","Site");
 class Attribute{
@@ -72,12 +72,12 @@ function getData($htmlContent, $prevAttributes){
 }
 
 
-function getSingleData($htmlContent, $unwanted_array){
+function getSingleData($htmlContent){
 	$DOM = new DOMDocument();
 	$DOM->loadHTML($htmlContent);
     $Detail = $DOM->getElementsByTagName('td');
     
-    $attributes = getEmptyAttributeArray($htmlContent, $unwanted_array);
+    $attributes = getEmptyAttributeArray($htmlContent, UNWANTED_ARRAY);
 
 	//#Get row data/detail table without header name as key
 	$i = 0;
@@ -94,7 +94,7 @@ function getSingleData($htmlContent, $unwanted_array){
 }
 
 
-function getEmptyAttributeArray($htmlContent, $unwanted_array){     
+function getEmptyAttributeArray($htmlContent){     
     $DOM = new DOMDocument();
 	$DOM->loadHTML($htmlContent);
     $Header = $DOM->getElementsByTagName('th');
@@ -103,7 +103,7 @@ function getEmptyAttributeArray($htmlContent, $unwanted_array){
     //#Get header name of the table
     foreach($Header as $NodeHeader) 
     {
-        $aDataTableHeaderHTML[] = strtr(utf8_decode(trim($NodeHeader->textContent)),$unwanted_array);
+        $aDataTableHeaderHTML[] = strtr(utf8_decode(trim($NodeHeader->textContent)),UNWANTED_ARRAY);
     }
     $aDataTableHeaderHTML[]=DEFAULT_SITE_KEY;
     $attributes = array_fill_keys($aDataTableHeaderHTML, array());
