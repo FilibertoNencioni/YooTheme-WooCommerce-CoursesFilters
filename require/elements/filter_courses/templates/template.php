@@ -134,8 +134,8 @@ function printAttrTags($attributes){
                 if(Str::length($props['sort_attributes'])){
                     $sortAttributesArr = explode(",",$props['sort_attributes']);
                     foreach($sortAttributesArr as $key =>$singleAttr){
-                        $singleAttr = str_replace(" ","-",trim($singleAttr));
-                        $attrToHide[]=$singleAttr;
+                        // $singleAttr = str_replace(" ","-",trim($singleAttr));
+                        $attrToHide[]=trim($singleAttr);
                     }
                 }
 
@@ -277,8 +277,6 @@ function printAttrTags($attributes){
     var daysAvailable = {};
 
     var elems = $(".filter-section");
-
-    console.log(elems);
     elems.sort(function(a, b) {
         return a.getAttribute('data-sort') > b.getAttribute('data-sort')
     }).appendTo(elems.parent());
