@@ -135,10 +135,6 @@ function printAttrTags($attributes){
                     $sortAttributesArr = explode(",",$props['sort_attributes']);
                     foreach($sortAttributesArr as $key =>$singleAttr){
                         $singleAttr = str_replace(" ","-",trim($singleAttr));
-                        // $obj = new stdClass;
-                        // $obj->attribute=$singleAttr;
-                        // $obj->position=$key+1;
-                        // $attrToHide[]=$obj;
                         $attrToHide[]=$singleAttr;
                     }
                 }
@@ -211,12 +207,12 @@ function printAttrTags($attributes){
             }
             ?>
             <?php if($position == 0) : ?>
-                <h3 class="uk-h5 uk-hidden">
+                <h3 class="uk-h5 uk-hidden filter-section">
             <?php else : ?>
-                <h3 class="uk-h5" data-sort="<?=$position?>" >
+                <h3 class="uk-h5 filter-section" data-sort="<?=$position?>" >
             <?php endif ?>
         <?php else : ?>
-            <h3 class="uk-h5">
+            <h3 class="uk-h5 filter-section">
         <?php endif ?>
 
             <?php if(Str::length($props['date_search_title'])) : ?>
@@ -230,30 +226,38 @@ function printAttrTags($attributes){
     <?php for($i = 0; $i<count($attributes);++$i) : 
         $index = trim(array_keys($attributes)[$i]);
         ?>
-
-        <?php if($i==0) : ?>
-            <div class="uk-first-column">
-        <?php else : ?>
-            <div class="uk-grid-margin uk-first-column">
-        <?php endif?>
-
         <?php if(count($attrToHide)> 0) : 
-         $position = 0;
-         foreach($attrToHide as $key=>$attr){
-             if(strtolower($attr)==strtolower($index)){
-                 $position = $key+1;
-             }
-         }
+            $position = 0;
+            foreach($attrToHide as $key=>$attr){
+                if(strtolower($attr)==strtolower($index)){
+                    $position = $key+1;
+                }
+            }
          ?>
-         <?php if($position == 0) : ?>
-            <div class="uk-card uk-card-body uk-card-default uk-padding-small uk-hidden">
-         <?php else : ?>
-            <div class="uk-card uk-card-body uk-card-default uk-padding-small" data-sort="<?= $position ?>">
-         <?php endif ?>
-
-        <?php else : ?>
-            <div class="uk-card uk-card-body uk-card-default uk-padding-small">
+            <?php if($i==0) : ?>
+                <?php if($position == 0) : ?>
+                    <div class="uk-first-column filter-section uk-hidden">
+                <?php else : ?>
+                    <div class="uk-first-column filter-section" data-sort="<?= $position ?>">
+                <?php endif ?>
+            <?php else : ?>
+                <?php if($position == 0) : ?>
+                    <div class="uk-grid-margin uk-first-column filter-section uk-hidden">
+                <?php else : ?>
+                    <div class="uk-grid-margin uk-first-column filter-section" data-sort="<?php $position ?>">
+                <?php endif ?>
+            <?php endif?>
+        <?php else: ?>
+            <?php if($i==0) : ?>
+                <div class="uk-first-column filter-section "> 
+            <?php else : ?>
+                <div class="uk-grid-margin uk-first-column filter-section">
+            <?php endif?>
         <?php endif ?>
+
+
+        <div class="uk-card uk-card-body uk-card-default uk-padding-small">
+        
             <h3 class="uk-h5"><?= $index ?></h3>
             <div class="uk-flex uk-flex-column filters-<?= strtolower(preg_replace('/\s+/', '-', $index)) ?>">
             <?php 
@@ -281,6 +285,13 @@ function printAttrTags($attributes){
 
 <script type="text/javascript">
     var daysAvailable = {};
+
+    var elems = $(".filter-section");
+
+    console.log(elems);
+    elems.sort(function(a, b) {
+        return a.getAttribute('data-sort') > b.getAttribute('data-sort')
+    }).appendTo(elems.parent());
 
     $.fn.dataStartsWith = function(p) {
         var pCamel = p.replace(/-([a-z])/ig, function(m,$1) { return $1.toUpperCase(); });
