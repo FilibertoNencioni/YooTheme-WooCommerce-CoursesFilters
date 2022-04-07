@@ -234,25 +234,15 @@ function printAttrTags($attributes){
                 }
             }
          ?>
-            <?php if($i==0) : ?>
-                <?php if($position == 0) : ?>
-                    <div class="uk-first-column filter-section uk-hidden">
-                <?php else : ?>
-                    <div class="uk-first-column filter-section" data-sort="<?= $position ?>">
-                <?php endif ?>
+            
+            <?php if($position == 0) : ?>
+                <div class="uk-first-column filter-section uk-margin-small-bottom uk-hidden">
             <?php else : ?>
-                <?php if($position == 0) : ?>
-                    <div class="uk-grid-margin uk-first-column filter-section uk-hidden">
-                <?php else : ?>
-                    <div class="uk-grid-margin uk-first-column filter-section" data-sort="<?php $position ?>">
-                <?php endif ?>
-            <?php endif?>
+                <div class="uk-first-column filter-section uk-margin-small-bottom" data-sort="<?= $position ?>">
+            <?php endif ?>
+            
         <?php else: ?>
-            <?php if($i==0) : ?>
-                <div class="uk-first-column filter-section "> 
-            <?php else : ?>
-                <div class="uk-grid-margin uk-first-column filter-section">
-            <?php endif?>
+            <div class="uk-first-column filter-section uk-margin-small-bottom"> 
         <?php endif ?>
 
 
