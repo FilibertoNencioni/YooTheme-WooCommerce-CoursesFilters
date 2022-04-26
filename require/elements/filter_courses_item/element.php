@@ -7,9 +7,9 @@ return [
         'render' => function ($node) {
             // Don't render element if content fields are empty
             return Str::length($node->props['title']) ||
-                Str::lenght($node->props['site']) ||
-                Str::lenght($node->props['date']) ||
-                Str::lenght($node->props['price']) ||
+                Str::length($node->props['site']) ||
+                Str::length($node->props['date']) ||
+                Str::length($node->props['price']) ||
                 $node->props['image'];
         },
     ],

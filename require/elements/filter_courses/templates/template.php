@@ -78,6 +78,9 @@ $table = $this->el('table', [
 ]);
 
 function printAttrTags($attributes){
+    if(count($attributes)==0){
+        return "";
+    }
     $tags = "";
     for($i = 0; $i<count($attributes);++$i){
         $index = trim(array_keys($attributes)[$i]);
@@ -142,6 +145,7 @@ function printAttrTags($attributes){
                 $attributes = getEmptyAttributeArray($children[0]->props['attributes']);
                 foreach ($children as $i => $child) : ?>
                 <?php 
+                $singleAttributes=[];
                     if(Str::length($child->props['attributes'])){
                         //GET ALL ATTRIBUTES           
                         $attributes = getData($child->props['attributes'], $attributes);
@@ -274,7 +278,7 @@ function printAttrTags($attributes){
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script type="text/javascript">
-    var daysAvailable = {};
+    const daysAvailable = [];
 
     var elems = $(".filter-section");
     elems.sort(function(a, b) {
@@ -298,17 +302,20 @@ function printAttrTags($attributes){
         }
     });
 
-    
     function getDays(){
-        daysAvailable = [];
+        daysAvailable.splice(0,daysAvailable.length);
         $(".corso").each(function(){
             if(!$(this).hasClass("uk-hidden")){
-                var date = new Date($(this).attr("tag-calendario"));
-                date.setHours(0,0,0,0);
-                daysAvailable[date] = date.toString();
+                var splittedDate = $(this).attr("tag-calendario").split("-");
+                var date = new Date(parseInt(splittedDate[0]), parseInt(splittedDate[1])-1,parseInt(splittedDate[2])).toDateString();
+
+                if(daysAvailable.findIndex((d) => d === date) === -1){
+                    daysAvailable.push(date);
+                }
             }
         });
     }
+
 
     function initDatepicker(){
         getDays();
@@ -323,7 +330,7 @@ function printAttrTags($attributes){
                 }
             },
             beforeShowDay: function( date ) {
-                var highlight = daysAvailable[date];
+                var highlight = daysAvailable.find(d => d === date.toDateString());
                 if( highlight ) {
                     return [true, "event", "Uno o più corsi sono disponibili in questo giorno"]; 
                 } else {
@@ -387,8 +394,11 @@ function printAttrTags($attributes){
         var date =$("#txtDate").val();
         if(date){
             var dataDatepicker = date.split("/");
+            if(dataDatepicker[1][0]==="0"){
+                dataDatepicker[1] = dataDatepicker[1].substring(1);
+            }
             var joinedDataDatepicker = dataDatepicker[2]+"-"+dataDatepicker[0]+"-"+dataDatepicker[1];
-            
+
             $(".corso").each(function(){
                 if($(this).attr("tag-calendario")!==joinedDataDatepicker){
                     var selectedCorso = $(this);
@@ -402,7 +412,7 @@ function printAttrTags($attributes){
                         }else{
                             console.log("ERRORE - INDICE IN RICERCA NON TROVATO");
                         }
-                    }
+                }
             });
                     
         }
@@ -466,6 +476,7 @@ function printAttrTags($attributes){
         checkCorsi();
     });
 
+    
 
     
 </script>
