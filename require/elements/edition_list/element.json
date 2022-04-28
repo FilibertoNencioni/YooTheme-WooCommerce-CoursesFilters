@@ -13,7 +13,9 @@
         "content": "./templates/content.php"
     },
     "defaults": {
-        "title-style":"h5",
+        "title-size":"h5",
+        "title-m-top":"uk-margin-small-top",
+        "title-m-bottom":"uk-margin-remove-bottom",
         "no-edition-title":"At the moment there are no editions scheduled",
         "title":"Course editions"
     },
@@ -23,8 +25,8 @@
             "description": "The title before the list",
             "source": "true"
         },
-        "title-style":{
-            "label":"Title Style",
+        "title-size":{
+            "label":"Title Size",
             "description": "Choose the size of the title",
             "type":"select",
             "options":{
@@ -41,6 +43,28 @@
         "no-edition-title":{
             "label":"No edition title",
             "description":"The text to displey where there are no editions scheduled"
+        },
+        "title-m-top":{
+            "label":"Title margin top",
+            "type":"select",
+            "options":{
+                "none":"uk-margin-remove-top",
+                "small":"uk-margin-small-top",
+                "medium":"uk-margin-medium-top",
+                "large":"uk-margin-large-top",
+                "x-large":"uk-margin-xlarge-top"
+            }
+        },
+        "title-m-bottom":{
+            "label":"Title margin bottom",
+            "type":"select",
+            "options":{
+                "none":"uk-margin-remove-bottom",
+                "small":"uk-margin-small-bottom",
+                "medium":"uk-margin-medium-bottom",
+                "large":"uk-margin-large-bottom",
+                "x-large":"uk-margin-xlarge-bottom"
+            }
         },
         "source": "${builder.source}",
         "name": "${builder.name}",
@@ -65,7 +89,7 @@
             "fields": [
                 {
                     "title": "Content",
-                    "fields": ["title","title-style","no-edition-title"]
+                    "fields": ["title","no-edition-title","title-m-bottom","title-m-top","title-size"]
                 },
                 "${builder.advanced}"
             ]
