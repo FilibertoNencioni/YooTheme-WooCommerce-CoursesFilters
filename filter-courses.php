@@ -5,7 +5,7 @@
  * Plugin Name: Filter courses by Emm&mmE Informatica
  * Plugin UTI:
  * Tags:
- * Version: 1.2.0
+ * Version: 1.2.2
  * Author: Filiberto Nencioni
  * License: 
  */
