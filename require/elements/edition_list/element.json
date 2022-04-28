@@ -17,7 +17,8 @@
         "title-m-top":"uk-margin-small-top",
         "title-m-bottom":"uk-margin-remove-bottom",
         "no-edition-title":"At the moment there are no editions scheduled",
-        "title":"Course editions"
+        "title":"Course editions",
+        "use-cf7":false
     },
     "fields": {
         "title":{
@@ -66,6 +67,19 @@
                 "x-large":"uk-margin-xlarge-bottom"
             }
         },
+        "use-cf7":{
+            "label":"Contact Forms 7 Implemention",
+            "description":"If you enable this you can pass the course title and the selected edition to a custom form",
+            "type":"checkbox"
+        },
+        "cf7-course":{
+            "label":"Course name input field id",
+            "enable":"use-cf7"
+        },
+        "cf7-edition":{
+            "label":"Edition input field id",
+            "enable":"use-cf7"
+        },
         "source": "${builder.source}",
         "name": "${builder.name}",
         "status": "${builder.status}",
@@ -89,7 +103,15 @@
             "fields": [
                 {
                     "title": "Content",
-                    "fields": ["title","no-edition-title","title-m-bottom","title-m-top","title-size"]
+                    "fields": ["title",
+                        "no-edition-title",
+                        "title-m-bottom",
+                        "title-m-top",
+                        "title-size",
+                        "use-cf7",
+                        "cf7-course",
+                        "cf7-edition"
+                    ]
                 },
                 "${builder.advanced}"
             ]
