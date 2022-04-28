@@ -1,0 +1,120 @@
+{
+    "@import": "./element.php",
+    "name": "edition_list",
+    "title": "Edition List",
+    "group": "Emm&mmE Informatica",
+    "icon": "${url:images/icon.svg}",
+    "iconSmall": "${url:images/iconSmall.svg}",
+    "element": true,
+    "container": true,
+    "width": 500,
+    "templates": {
+        "render": "./templates/template.php",
+        "content": "./templates/content.php"
+    },
+    "defaults": {
+        "title-size":"h5",
+        "title-m-top":"uk-margin-small-top",
+        "title-m-bottom":"uk-margin-remove-bottom",
+        "no-edition-title":"At the moment there are no editions scheduled",
+        "title":"Course editions",
+        "use-cf7":false
+    },
+    "fields": {
+        "title":{
+            "label":"Title",
+            "description": "The title before the list",
+            "source": "true"
+        },
+        "title-size":{
+            "label":"Title Size",
+            "description": "Choose the size of the title",
+            "type":"select",
+            "options":{
+                "h1":"h1",
+                "h2":"h2",
+                "h3":"h3",
+                "h4":"h4",
+                "h5":"h5",
+                "h6":"h6",
+                "h7":"h7",
+                "h8":"h8"
+            }
+        },
+        "no-edition-title":{
+            "label":"No edition title",
+            "description":"The text to displey where there are no editions scheduled"
+        },
+        "title-m-top":{
+            "label":"Title margin top",
+            "type":"select",
+            "options":{
+                "none":"uk-margin-remove-top",
+                "small":"uk-margin-small-top",
+                "medium":"uk-margin-medium-top",
+                "large":"uk-margin-large-top",
+                "x-large":"uk-margin-xlarge-top"
+            }
+        },
+        "title-m-bottom":{
+            "label":"Title margin bottom",
+            "type":"select",
+            "options":{
+                "none":"uk-margin-remove-bottom",
+                "small":"uk-margin-small-bottom",
+                "medium":"uk-margin-medium-bottom",
+                "large":"uk-margin-large-bottom",
+                "x-large":"uk-margin-xlarge-bottom"
+            }
+        },
+        "use-cf7":{
+            "label":"Contact Forms 7 Implemention",
+            "description":"If you enable this you can pass the course title and the selected edition to a custom form",
+            "type":"checkbox"
+        },
+        "cf7-course":{
+            "label":"Course name input field id",
+            "enable":"use-cf7"
+        },
+        "cf7-edition":{
+            "label":"Edition input field id",
+            "enable":"use-cf7"
+        },
+        "source": "${builder.source}",
+        "name": "${builder.name}",
+        "status": "${builder.status}",
+        "id": "${builder.id}",
+        "class": "${builder.cls}",
+        "attributes": "${builder.attrs}",
+        "css": {
+            "label": "CSS",
+            "description": "Enter your own custom CSS. The following selectors will be prefixed automatically for this element: <code>.el-element</code>, <code>.el-item</code>, <code>.el-content</code>, <code>.el-image</code>, <code>.el-link</code>",
+            "type": "editor",
+            "editor": "code",
+            "mode": "css",
+            "attrs": {
+                "debounce": 500
+            }
+        }
+    },
+    "fieldset": {
+        "default": {
+            "type": "tabs",
+            "fields": [
+                {
+                    "title": "Content",
+                    "fields": ["title",
+                        "no-edition-title",
+                        "title-m-bottom",
+                        "title-m-top",
+                        "title-size",
+                        "use-cf7",
+                        "cf7-course",
+                        "cf7-edition"
+                    ]
+                },
+                "${builder.advanced}"
+            ]
+        }
+    }
+}
