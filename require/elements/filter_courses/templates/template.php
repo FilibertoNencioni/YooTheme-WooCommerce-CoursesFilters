@@ -1,11 +1,14 @@
 <style>
-.event a {
+    .event a {
     background-color: #42B373 !important;
     background-image :none !important;
     color: #ffffff !important;
 }
-
 </style>
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <?php
 use YOOtheme\Arr;
@@ -32,14 +35,15 @@ $filtered = array_values(Arr::filter($fields, function ($field) use ($props, $ch
 
 $container = $this->el('div', [
     'class'=>[
-        'uk-flex'
+        'uk-flex',
+        'uk-flex-wrap'
     ]
 ]);
 
 $filterContainer = $this->el('div',[
     'class'=>[
         'uk-flex-first',
-        'uk-width-1-4@m',
+        'uk-width-1-4@s',
         'filters'
     ]
 ]);
@@ -48,7 +52,7 @@ $el = $this->el('div', [
 
     'class' => [
         'uk-overflow-auto {@table_responsive: overflow}',
-        'uk-width-expand@m',
+        'uk-width-expand@s',
         'uk-flex-last',
         'uk-margin-left'
     ],
@@ -77,415 +81,235 @@ $table = $this->el('table', [
 
 ]);
 
-function printAttrTags($attributes){
-    if(count($attributes)==0){
-        return "";
-    }
+// TODO: deve prendere anche l'array 'scheletro' 
+// in modo da inserire il campo tag-x anche se quel tag non esiste
+function printAttrTags($singleAttributes, $allAttributes){
     $tags = "";
-    for($i = 0; $i<count($attributes);++$i){
-        $index = trim(array_keys($attributes)[$i]);
-        if(count($attributes[$index])>0){
-            $tags.= " tag-".preg_replace('/\s+/', '-', $index)."='".$attributes[$index][0]."'";
+
+    foreach($allAttributes as $key => $saa){
+        if(key_exists($key, $singleAttributes)){
+            $tags.= " tag-".preg_replace('/\s+/', '-', $key)."='".implode(",",$singleAttributes[$key])."'";
         }else{
-            $tags.= " tag-".preg_replace('/\s+/', '-', $index)."=''";
+            $tags.= " tag-".preg_replace('/\s+/', '-', $key)."=''";
         }
     }
-    echo $tags;
+
+    return $tags;
 }
 
+echo $container;
+echo $el($props, $attrs);
+echo $table($props);
 
+        if (Arr::some($filtered, function ($field) use ($props) { return $props["table_head_{$field}"]; })) : ?>
+            <thead>
+                <tr>
 
-?>
+                    <?php foreach ($filtered as $i => $field) {
+                        $lastColumn = $i !== 0 && !isset($filtered[$i + 1]);
+                        if($field == "date"){
+                            echo $this->el('th', [
+                                'id'=>'head-date',
+                                'class' => [
+                                    // Last column alignment
+                                    'uk-text-{table_last_align}[@m {@table_responsive: responsive}]' => $lastColumn,
+        
+                                    // Text align need to be set for table heading
+                                    'uk-text-{text_align}[@{text_align_breakpoint} [uk-text-{text_align_fallback}] {@!text_align: justify}]' => !$lastColumn || !$props['table_last_align'],
+                                ],
+                                'onclick'=>'sortDate()',
+                                'style'=>'cursor:pointer'
+                            ], $props["table_head_{$field}"])->render($props);
+                        }else{
+                            echo $this->el('th', [
 
-    <?= $container ?>
-    <?= $el($props, $attrs) ?>
-    <?= $table($props) ?>
+                                'class' => [
+                                    // Last column alignment
+                                    'uk-text-{table_last_align}[@m {@table_responsive: responsive}]' => $lastColumn,
+        
+                                    // Text align need to be set for table heading
+                                    'uk-text-{text_align}[@{text_align_breakpoint} [uk-text-{text_align_fallback}] {@!text_align: justify}]' => !$lastColumn || !$props['table_last_align'],
+                                ],
+        
+                            ], $props["table_head_{$field}"])->render($props);
+                        }
+                    
 
+                    } ?>
 
-        <?php if (Arr::some($filtered, function ($field) use ($props) { return $props["table_head_{$field}"]; })) : ?>
-        <thead>
-            <tr>
-
-                <?php foreach ($filtered as $i => $field) {
-
-                    $lastColumn = $i !== 0 && !isset($filtered[$i + 1]);
-
-                    echo $this->el('th', [
-
-                        'class' => [
-                            // Last column alignment
-                            'uk-text-{table_last_align}[@m {@table_responsive: responsive}]' => $lastColumn,
-
-                            // Text align need to be set for table heading
-                            'uk-text-{text_align}[@{text_align_breakpoint} [uk-text-{text_align_fallback}] {@!text_align: justify}]' => !$lastColumn || !$props['table_last_align'],
-                        ],
-
-                    ], $props["table_head_{$field}"])->render($props);
-
-                } ?>
-
-            </tr>
-        </thead>
+                </tr>
+            </thead>
         <?php endif ?>
 
         <tbody>
+            <?php if ($props['enable_filters'] == true): 
 
-        
-        <?php if ($props['enable_filters'] == true): 
-
-                $attrToHide = [];
+                // $attrToShow contiene il nome degli attributi/tag da mostrare tra i filtri
+                $attrToShow = [];
                 if(Str::length($props['sort_attributes'])){
                     $sortAttributesArr = explode(",",$props['sort_attributes']);
                     foreach($sortAttributesArr as $key =>$singleAttr){
-                        // $singleAttr = str_replace(" ","-",trim($singleAttr));
-                        $attrToHide[]=trim($singleAttr);
+                        $attrToShow[]=trim($singleAttr);
                     }
                 }
 
-                $attributes = getEmptyAttributeArray($children[0]->props['attributes']);
-                foreach ($children as $i => $child) : ?>
-                <?php 
-                $singleAttributes=[];
-                    if(Str::length($child->props['attributes'])){
-                        //GET ALL ATTRIBUTES           
-                        $attributes = getData($child->props['attributes'], $attributes);
+                //Popolamento dell'array che contiene tutti gli attributi (usato per la ricerca con filtro)           
+                $allAttributes = getData($children, $attrToShow);
+                // var_dump($allAttributes);
+                foreach ($children as $i => $child) :
 
-                        //GET ATTRIBUTE OF THE CHILD PRODUCT
-                        $singleAttributes = getSingleData($child->props['attributes']);
-                    }
+                    //$singleAttributes contiene tutti gli attributi di un corso
+                    $singleAttributes=[];
                     $date = "";
+                    $hide = false;
                     if(Str::length($child->props['date'])){
                         $date = stringToDate($child->props['date']);
+                        if(strtotime(date('Y-m-d'))>strtotime($date)){
+                            $hide = true;
+                        }
                     };
 
+                    if(!$hide) : 
+                        $link = $child->props['link'];
+                        if(Str::length($child->props['attributes'])){
+                            //GET ATTRIBUTE OF THE SINGLE COURSE
+                            $singleAttributes = getSingleData($child->props['attributes']);
+                        }
+
+                        if(Str::length($child->props['site'])){
+                            $singleAttributes[DEFAULT_SITE_KEY][] = $child->props['site'];
+                        };
                     
-                    if(Str::length($child->props['site'])){
-                        $attributes = insertSite($attributes,$child->props['site']);
-                    };
-
-                    $link = $child->props['link'];
-
-                ?>
-                <?php if(!Str::length($link)) : ?>
-                    <?php if(Str::length($date)) : ?>
-                        <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes) ?> tag-calendario="<?= $date ?>"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
-                    <?php else : ?>
-                        <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes) ?>><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
-                    <?php endif ?>
-
-                <?php else : ?>
-                    <?php if(Str::length($date)) : ?>
-                        <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes) ?> style="cursor:pointer;" onclick="window.location='<?= $link ?>'" tag-calendario="<?=$date?>"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
-                    <?php else : ?>
-                        <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes) ?> style="cursor:pointer;" onclick="window.location='<?= $link ?>'"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
-                    <?php endif ?>
-
-                <?php endif ?>
-            <?php endforeach ?>
-
-        <?php endif ?>
-
-        <?php if ($props['enable_filters'] != true):?>
-            <?php foreach ($children as $i => $child) : ?>
-                <tr class="el-item"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
-            <?php endforeach ?>
-        <?php endif ?>
-
+                        if(!Str::length($link)) : 
+                            if(Str::length($date)) : ?>
+                                <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes, $allAttributes) ?> tag-calendario="<?= $date ?>"><?= $builder->render($child, ["i" => $i, "element" => $props, "fields" => $fields, "text_fields" => $text_fields, "filtered" => $filtered]) ?></tr>
+                            <?php else : ?>
+                                <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes, $allAttributes) ?>><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
+                            <?php endif;
+                        else :
+                            if(Str::length($date)) : ?>
+                                <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes, $allAttributes) ?> style="cursor:pointer;" onclick="window.location='<?= $link ?>'" tag-calendario="<?=$date?>"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
+                            <?php else : ?>
+                                <tr class="el-item corso" id="corso-<?= $i ?>" <?= printAttrTags($singleAttributes, $allAttributes) ?> style="cursor:pointer;" onclick="window.location='<?= $link ?>'"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
+                            <?php endif;
+                        endif;
+                    endif;
+                endforeach; //FINE POPOLAMENTO TABELLA 
+                
+            else:  //FILTERED SEARCH ENABLED == FALSE
+                foreach ($children as $i => $child) : ?>
+                    <tr class="el-item"><?= $builder->render($child, ['i' => $i, 'element' => $props, 'fields' => $fields, 'text_fields' => $text_fields, 'filtered' => $filtered]) ?></tr>
+                <?php endforeach;
+            endif ?>
 
         </tbody>
-
     </table>
-
 </div>
 
-<?php if ($props['enable_filters'] == true) : ?>
-    <?= $filterContainer ?>
+<?php if ($props['enable_filters'] == true) : 
+    // RENDER DELLA SEZIONE RICERCA CON FILTRI 
+    echo($filterContainer);
+    if(count($attrToShow)> 0) :
 
-    <?php if(Str::length($date)) : ?>
-        <?php if(count($attrToHide)> 0) : 
-        $position = 0;
-            foreach($attrToHide as $key=>$attr){
+        //RENDER DEL FILTRO "DATE" SPECIFICANDO LE POSIZIONI
+        if(Str::length($date)) :
+
+            $position = -1; 
+            foreach($attrToShow as $key=>$attr){
                 if(strtolower($attr)=="date"){
-                    $position = $key+1;
+                    $position = $key;
                 }
             }
-            ?>
-            <?php if($position == 0) : ?>
-                <h3 class="uk-h5 uk-hidden filter-section">
-            <?php else : ?>
-                <h3 class="uk-h5 filter-section" data-sort="<?=$position?>" >
-            <?php endif ?>
-        <?php else : ?>
-            <h3 class="uk-h5 filter-section">
-        <?php endif ?>
 
-            <?php if(Str::length($props['date_search_title'])) : ?>
-                <?= $props['date_search_title'] ?>
-            <?php else : ?>
-                Cerca disponibilità
-            <?php endif ?>
-        <input type="text" id="txtDate" style="width:97%"></h3>
-    <?php endif ?>
+            //TODO: nel javascript se datepicker == undefined allora non esegure nessuna operazione a riguardo
+            if($position != -1): ?>
+                <h3 class="uk-h5 filter-section" data-sort="<?=$position?>">
+            
+                <?php
+                if(Str::length($props['date_search_title'])) :
+                    echo $props['date_search_title'];
+                else :
+                    echo "Cerca disponibilità";
+                endif ?>
+                <input type="text" id="txtDate" style="width:97%">
+                </h3>
+            <?php endif;
+        endif; //FINE RENDER FILTRO DATE
 
-    <?php for($i = 0; $i<count($attributes);++$i) : 
-        $index = trim(array_keys($attributes)[$i]);
-        ?>
-        <?php if(count($attrToHide)> 0) : 
-            $position = 0;
-            foreach($attrToHide as $key=>$attr){
+        //RENDER DEI VARI ATTRIBUTI
+        for($i = 0; $i<count($allAttributes);++$i) :
+            $index = trim(array_keys($allAttributes)[$i]);
+            $position = -1;
+            foreach($attrToShow as $key=>$attr){
                 if(strtolower($attr)==strtolower($index)){
-                    $position = $key+1;
+                    $position = $key;
                 }
             }
-         ?>
-            
-            <?php if($position == 0) : ?>
-                <div class="uk-first-column filter-section uk-margin-small-bottom uk-hidden">
-            <?php else : ?>
+
+            if($position != -1) : ?>
                 <div class="uk-first-column filter-section uk-margin-small-bottom" data-sort="<?= $position ?>">
-            <?php endif ?>
-            
-        <?php else: ?>
-            <div class="uk-first-column filter-section uk-margin-small-bottom"> 
-        <?php endif ?>
-
-
-        <div class="uk-card uk-card-body uk-card-default uk-padding-small">
-        
-            <h3 class="uk-h5"><?= $index ?></h3>
-            <div class="uk-flex uk-flex-column filters-<?= strtolower(preg_replace('/\s+/', '-', $index)) ?>">
-            <?php 
-            foreach($attributes[$index] as $key => $attr) :
-                $attrvalue = trim($attr->get_name()); 
-                $nTimes = $attr ->get_nTimes();
-                $tagvalue ='tag-'.preg_replace('/\s+/', '-', $index).'="'.preg_replace('/\s+/', '-', $attrvalue).'"';
-                ?>
-
-                <label for="check-<?=$i?>-<?=$key?>"> <input class="uk-checkbox" type="checkbox" <?= $tagvalue?> id="check-<?=$i?>-<?=$key?>"> <?= $attrvalue ?> (<span class="count" id="span-<?=$i?>-<?=$key?>"><?= $nTimes ?></span>)</label>
+                    <div class="uk-card uk-card-body uk-card-default uk-padding-small">
+                        <h3 class="uk-h5"> <?= $index==DEFAULT_SITE_KEY? "Sede": $index ?></h3>
+                        <div class="uk-flex uk-flex-column filters-<?= strtolower(preg_replace('/\s+/', '-', $index)) ?>">
+                            <?php 
+                            foreach($allAttributes[$index] as $key => $attr) :
+                                $attrvalue = trim($attr->get_name()); 
+                                $nTimes = $attr ->get_nTimes();
+                                $tagvalue ='tag-'.preg_replace('/\s+/', '-', $index).'="'.preg_replace('/\s+/', '-', $attrvalue).'"';
+                                ?>
                 
-            <?php endforeach ?>
-            </div>       
-            
-        </div>
-        </div>
-    <?php endfor ?>
-    </div>
-<?php endif ?>
-
-
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
-<script type="text/javascript">
-    const daysAvailable = [];
-
-    var elems = $(".filter-section");
-    elems.sort(function(a, b) {
-        return a.getAttribute('data-sort') > b.getAttribute('data-sort')
-    }).appendTo(elems.parent());
-
-    $.fn.dataStartsWith = function(p) {
-        var pCamel = p.replace(/-([a-z])/ig, function(m,$1) { return $1.toUpperCase(); });
-        return this.filter(function(i, el){
-            return Object.keys(el.dataset).some(function(v){
-            return v.indexOf(pCamel) > -1;
-            });
-        });
-    };
-    
-    var classNames = [];
-    $('div[class*="filters-"]').each(function(i, el){
-        var name = (el.className.match(/(^|\s)(filters\-[^\s]*)/) || [,,''])[2];
-        if(name){
-            classNames.push(name);
-        }
-    });
-
-    function getDays(){
-        daysAvailable.splice(0,daysAvailable.length);
-        $(".corso").each(function(){
-            if(!$(this).hasClass("uk-hidden")){
-                var splittedDate = $(this).attr("tag-calendario").split("-");
-                var date = new Date(parseInt(splittedDate[0]), parseInt(splittedDate[1])-1,parseInt(splittedDate[2])).toDateString();
-
-                if(daysAvailable.findIndex((d) => d === date) === -1){
-                    daysAvailable.push(date);
-                }
-            }
-        });
-    }
-
-
-    function initDatepicker(){
-        getDays();
-        // datepicker
-        $('#txtDate').datepicker({
-            showButtonPanel: true,
-            closeText: 'Svuota',
-            onClose: function (dateText, inst) {
-                if ($(window.event.srcElement).hasClass('ui-datepicker-close')) {
-                    document.getElementById(this.id).value = '';
-                    checkCorsi();
-                }
-            },
-            beforeShowDay: function( date ) {
-                var highlight = daysAvailable.find(d => d === date.toDateString());
-                if( highlight ) {
-                    return [true, "event", "Uno o più corsi sono disponibili in questo giorno"]; 
-                } else {
-                    return [false, ''];
-                }
-            },
-            onSelect: ()=>checkCorsi()
-        });
-    }
-
-    
-        
-
-    
-    function checkCorsi(){
-        //Populating the array with all the courses, this is used to see which courses match the attributes
-        const corsiDaMostrare = [];
-
-        $(".corso").each(function(){
-            corsiDaMostrare.push({corso: $(this).attr('id'), ok:true});
-        });
-        $(".filters :checkbox:checked").each(function() {
-            //Check match of attributes
-            for (let i = 0; i < classNames.length; i++) {
-                let tag = classNames[i].replace('filters','tag');
-                let tagValue = $(this).attr(tag);
-
-                if(tagValue){
-                    $(".corso").each(function(){
-                        let attrFound = false;
-
-                        
-                        if($(this).attr(tag)){
-                            const selectedCorso = $(this);
-                            let corsoTagValues = selectedCorso.attr(tag).split(",");
-                            for(let j = 0; j<corsoTagValues.length;j++){
-                                let name = corsoTagValues[j].trim().replaceAll(" ","-");
-                                if(tagValue === name){
-                                    attrFound=true;
-                                }
-                            }
-
-                            if(!attrFound){
-                                let corsoIndex = corsiDaMostrare.findIndex(function(elem){
-                                    if(elem.corso === selectedCorso.eq(0).attr('id')){
-                                        return elem;
-                                    }
-                                });
-                                if(corsoIndex !== -1){
-                                    corsiDaMostrare[corsoIndex].ok = false;
-                                }else{
-                                    console.log("ERRORE - INDICE IN RICERCA NON TROVATO");
-                                }
-                            }
-                        }
-
-                    })
-                }
-            }
-        });
-        var date =$("#txtDate").val();
-        if(date){
-            var dataDatepicker = date.split("/");
-            if(dataDatepicker[1][0]==="0"){
-                dataDatepicker[1] = dataDatepicker[1].substring(1);
-            }
-            var joinedDataDatepicker = dataDatepicker[2]+"-"+dataDatepicker[0]+"-"+dataDatepicker[1];
-
-            $(".corso").each(function(){
-                if($(this).attr("tag-calendario")!==joinedDataDatepicker){
-                    var selectedCorso = $(this);
-                    let corsoIndex = corsiDaMostrare.findIndex(function(elem){
-                        if(elem.corso === selectedCorso.eq(0).attr('id')){
-                            return elem;
-                        }
-                    });
-                        if(corsoIndex !== -1){
-                            corsiDaMostrare[corsoIndex].ok = false;
-                        }else{
-                            console.log("ERRORE - INDICE IN RICERCA NON TROVATO");
-                        }
-                }
-            });
-                    
-        }
-        for(let i = 0; i < corsiDaMostrare.length; i++){
-            var element = document.getElementById(corsiDaMostrare[i].corso);
-
-            //Hide courses that don't match the filters and hide the filters with 0 courses shown 
-            if(corsiDaMostrare[i].ok === false){
-                if(!element.classList.contains('uk-hidden')){
-                    element.classList.add('uk-hidden');
-                    classNames.forEach(function(value){
-                        let tagPrefix = value.replaceAll("filters","tag");
-                        let currentTags=$(element).attr(tagPrefix).split(", ");
-                        currentTags.forEach(function(value){
-                            value = value.replaceAll(" ","-");                            
-                            $('.filters :checkbox').each(function(){
-                                if($(this).attr(tagPrefix)==value.trim()){
-                                    var label = $("label[for='"+this.id+"']");
-                                    var span = label.children('span');
-                                    var spanValue = parseInt(span.text())-1;
-                                    span.text(spanValue);
-                                    if(spanValue === 0){
-                                        label.addClass("uk-hidden");
-                                    }
-                                }
-                            });
-                        })
-                    });
-                }
-
-            //Show courses and filters
-            }else{
-                if(element.classList.contains('uk-hidden')){
-                    element.classList.remove('uk-hidden');
-                    classNames.forEach(function(value){
-                        let tagPrefix = value.replace("filters","tag");
-                        let currentTags=$(element).attr(tagPrefix).split(", ");
-                        currentTags.forEach(function(value){
-                            value = value.replaceAll(" ","-");
+                                <label for="check-<?=$i?>-<?=$key?>"> <input class="uk-checkbox" type="checkbox" <?= $tagvalue?> id="check-<?=$i?>-<?=$key?>"> <?= $attrvalue ?> (<span class="count" id="span-<?=$i?>-<?=$key?>"><?= $nTimes ?></span>)</label>
                             
-                            $('.filters :checkbox').each(function(){
-                                if($(this).attr(tagPrefix)==value.trim()){
-                                    var label = $("label[for='"+this.id+"']");
-                                    var span = label.children('span');
-                                    var spanValue = parseInt(span.text())+1;
-                                    span.text(spanValue);
-                                    if(spanValue > 0){
-                                        label.removeClass("uk-hidden");
-                                    }
-                                }
-                            });
-                        })
-                    });
-                }
-            }
-            getDays();
-        }
-    }
+                            <?php
+                            endforeach ?>
+                        </div>
+                    </div>
+                </div>
+            <?php
+            endif;
+        endfor;
+    else : // $attrToShow == 0, quindi fare il render con ordine standard: date, tags 
+        
+        //RENDER DEL FILTRO "DATE" SENSA SPECIFICARE POSIZIONI 
+        if(Str::length($date)) : ?>
+            <h3 class="uk-h5 filter-section">
+            <?php
+            if(Str::length($props['date_search_title'])) :
+                echo $props['date_search_title'];
+            else :
+                echo "Cerca disponibilità";
+            endif ?>
+            <input type="text" id="txtDate" style="width:97%">
+            </h3>
+        <?php
+        endif;
 
-    $(".filters :checkbox").click(function() {
-        checkCorsi();
-    });
+        for($i = 0; $i<count($attributes);++$i) :
+            $index = trim(array_keys($attributes)[$i]); ?>
 
-    
+                <div class="uk-first-column filter-section uk-margin-small-bottom">
+                    <div class="uk-card uk-card-body uk-card-default uk-padding-small">
 
-    
-</script>
+                        <h3 class="uk-h5"> <?= $index==DEFAULT_SITE_KEY? "Sede": $index ?></h3>
+                        <div class="uk-flex uk-flex-column filters-<?= strtolower(preg_replace('/\s+/', '-', $index)) ?>">
+                            <?php 
+                            foreach($attributes[$index] as $key => $attr) :
+                                $attrvalue = trim($attr->get_name()); 
+                                $nTimes = $attr ->get_nTimes();
+                                $tagvalue ='tag-'.preg_replace('/\s+/', '-', $index).'="'.preg_replace('/\s+/', '-', $attrvalue).'"';
+                                ?>
+                
+                                <label for="check-<?=$i?>-<?=$key?>"> <input class="uk-checkbox" type="checkbox" <?= $tagvalue?> id="check-<?=$i?>-<?=$key?>"> <?= $attrvalue ?> (<span class="count" id="span-<?=$i?>-<?=$key?>"><?= $nTimes ?></span>)</label>
+                            
+                            <?php
+                            endforeach ?>
+                        </div>
+                    </div>
+                </div>
+            <?php
+        endfor;
+    endif;
+    echo($filterContainer->end()); 
+    echo($container->end());
 
-<?php if(Str::length($date)) : ?>
-    <script type="text/javascript">
-    //initialize datepicker
-    initDatepicker();
-
-    </script>
-<?php endif ?>
-
+endif ?>

@@ -14,7 +14,10 @@ $el = $this->el('div', [
         'uk-text-{date_color}',
     ],
 
+
 ]);
 
+
 echo $el($element, $props['date']);
+
 

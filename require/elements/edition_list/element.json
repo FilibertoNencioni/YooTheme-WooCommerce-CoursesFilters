@@ -80,6 +80,10 @@
             "label":"Edition input field id",
             "enable":"use-cf7"
         },
+        "cf7-category":{
+            "label":"Category input field id",
+            "enable":"use-cf7"
+        },
         "source": "${builder.source}",
         "name": "${builder.name}",
         "status": "${builder.status}",
@@ -110,7 +114,8 @@
                         "title-size",
                         "use-cf7",
                         "cf7-course",
-                        "cf7-edition"
+                        "cf7-edition",
+                        "cf7-category"
                     ]
                 },
                 "${builder.advanced}"

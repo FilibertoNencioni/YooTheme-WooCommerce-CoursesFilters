@@ -3,6 +3,16 @@
 namespace YOOtheme;
 
 return [
+    'transforms' =>[
+        'render' => function(){
+            app(Metadata::class)->set('script:filter_courses_script', [
+                'src' => Path::get('./app/filter_courses.js'),
+                'defer' => true,
+            ]);
+
+            
+        }
+    ],
     'updates' => [
         '1.20.0-beta.1.1' => function ($node) {
             if (isset($node->props['maxwidth_align'])) {

@@ -1,0 +1,50 @@
+{
+    "@import": "./element.php",
+    "name": "service_cf7_integration",
+    "title": "Service CF7 Integration",
+    "group": "Emm&mmE Informatica",
+    "icon": "${url:images/icon.svg}",
+    "iconSmall": "${url:images/iconSmall.svg}",
+    "element": true,
+    "container": true,
+    "width": 500,
+    "templates": {
+        "render": "./templates/template.php",
+        "content": "./templates/content.php"
+    },
+    "defaults": {
+        "use-cf7":false
+    },
+    "fields": {
+        "use-cf7":{
+            "label":"Contact Forms 7 Implemention",
+            "description":"If you enable this you can pass the service title to a custom form",
+            "type":"checkbox"
+        },
+        "cf7-service-name":{
+            "label":"Service name input field id",
+            "enable":"use-cf7"
+        },
+        "cf7-category":{
+            "label":"Category input field id",
+            "enable":"use-cf7"
+        },
+        "source": "${builder.source}"
+    },
+    "fieldset": {
+        "default": {
+            "type": "tabs",
+            "fields": [
+                {
+                    "title": "Content",
+                    "fields": [
+                        "use-cf7",
+                        "cf7-service-name",
+                        "cf7-category"
+                    ]
+                },
+                "${builder.advanced}"
+            ]
+        }
+    }
+}
