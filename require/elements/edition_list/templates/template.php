@@ -12,41 +12,66 @@ try {
             $productCat = $cat->name;
         }
     }
-   
-    $url = "https://localhost/wordpress/wp-json/wp/v2/date"; // CHANGE THIS WITH YOUR URL
-    // $url = "https://one.wordpress.test/wp-json/wp/v2/date";  //TEST
     
-    $curl = curl_init($url);
-    curl_setopt($curl, CURLOPT_URL, $url);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    $editions = [];
+    $page = 1;
+    do {
+        $url = "http://127.0.0.1/wp-json/wp/v2/date?_fields=acf&per_page=10&page=".$page; // CHANGE THIS WITH YOUR URL
+        // $url = "https://one.wordpress.test/wp-json/wp/v2/date";  //TEST
+        
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        
+        //for debug only!
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        
+        $resp = curl_exec($curl);
+        curl_close($curl);
+        $dates = json_decode($resp);
+        
+        $isOver = false;
+        if(!isset($dates->code)){
+            foreach($dates as $date){
+            
+                if($date->acf->corso_erogato == $productID){
+                    $edition = new stdClass();
+                    $edition->site = $date->acf->sede;
+            
+                    //SETTING DATE FORMAT
+                    $dateOnly = $date->acf->data;
+                    $formattedDate = sprintf("%s/%s/%s", substr($dateOnly, -2), substr($dateOnly, 4,2), substr($dateOnly,0, 4));
+                    $edition->date = $formattedDate;
     
-    //for debug only!
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+                    $dateForCheck = sprintf("%s-%s-%s",substr($dateOnly,0, 4), substr($dateOnly, 4,2), substr($dateOnly, -2));
+                    $edition->hide = false;
     
-    $resp = curl_exec($curl);
-    curl_close($curl);
-    $dates = json_decode($resp);
+                    $dateTimestamp1 = strtotime(date('Y-m-d'));
+                    $dateTimestamp2 = strtotime($dateForCheck);
+                    if($dateTimestamp1>$dateTimestamp2){
+                        $edition->hide = true;
+                    }
     
-    foreach($dates as $date){
-        if($date->acf->corso_erogato == $productID){
-            $edition = new stdClass();
-            $edition->site = $date->acf->sede;
-    
-            //SETTING DATE FORMAT
-            $dateOnly = $date->acf->data;
-            $formattedDate = sprintf("%s/%s/%s", substr($dateOnly, -2), substr($dateOnly, 4,2), substr($dateOnly,0, 4));
-    
-            $edition->date = $formattedDate;
-            $editions[]=$edition;
+                    $editions[]=$edition;
+                }
+            }
+        }else{
+            $isOver = true;
         }
-    }
+        
+        
+        $page++;
+        
+    } while (!$isOver);
+
 } catch (\Throwable $th) {
     //throw $th;
     throw new Exception("Error during curl operation in editions list", 1);
     $editions=[];
     
 }
+
 
 $form = $this->el("form",[
     "class"=>[
@@ -66,16 +91,37 @@ $container = $this->el("div", [
     ],
 ]);
 
+function checkIsEmpty($editionsList){
+    if(!isset($editionsList)){
+        return true;
+    }
+    $count = 0;
+    foreach($editionsList as $edition){
+        if($edition->hide == false){
+            $count++;
+        }
+    }
+    if($count == 0){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+
 $title = $this->el($props['title-size'],[]);
 ?>
 
+
 <!-- DISPLAY LIST ITEM -->
-<?php if(count($editions)>0) : ?>
+<?php if(!checkIsEmpty($editions)) : ?>
     <?= $container($attrs) ?>
         <?= $title ?> <?= $props['title'] ?> <?= $title->end() ?>
         <?= $form ?>
             <?php foreach ($editions as $key => $edition) : ?>
-                <label><input class="uk-radio" type="radio" name="edition" value="<?= $edition->date ?> - <?= $edition->site ?>"> <?= $edition->date ?> - <?= $edition->site ?> </label>
+                <?php if($edition->hide == false) : ?>
+                    <label><input class="uk-radio" type="radio" name="edition" value="<?= $edition->date ?> - <?= $edition->site ?>"> <?= $edition->date ?> - <?= $edition->site ?> </label>
+                <?php endif ?>
             <?php endforeach ?>
         <?= $form->end() ?>
     <?= $container->end() ?>
