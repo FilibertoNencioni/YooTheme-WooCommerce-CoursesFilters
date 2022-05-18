@@ -16,8 +16,8 @@ try {
     $editions = [];
     $page = 1;
     do {
-        $url = "http://127.0.0.1/wp-json/wp/v2/date?_fields=acf&per_page=10&page=".$page; // CHANGE THIS WITH YOUR URL
-        // $url = "https://one.wordpress.test/wp-json/wp/v2/date";  //TEST
+        // $url = "http://127.0.0.1/wp-json/wp/v2/date?_fields=acf&per_page=10&page=".$page; // CHANGE THIS WITH YOUR URL
+        $url = "https://one.wordpress.test/wp-json/wp/v2/date?_fields=acf&per_page=10&page=".$page;  //TEST
         
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_URL, $url);
@@ -160,3 +160,13 @@ $title = $this->el($props['title-size'],[]);
 <?php endif ?>
 
 
+<!-- TEST-->
+ <!--<?php
+    $request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
+    $request->set_query_params( [ 'per_page' => 12 ] );
+    $response = rest_do_request( $request );
+    $server = rest_get_server();
+    $data = $server->response_to_data( $response, false );
+    $json = wp_json_encode( $data );
+    //"cURL error 60: SSL: no alternative certificate subject name matches target host name 'one.wordpress.test'" <- Requests_exception
+?>  --> 
