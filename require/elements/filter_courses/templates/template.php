@@ -3,6 +3,7 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <?php
+// TODO: controllare come mai se io nascondo date la sezione site è vuota
 use YOOtheme\Arr;
 use YOOtheme\Str;
 require_once'filter.php';
@@ -213,7 +214,6 @@ echo $table($props);
                 }
             }
 
-            //TODO: nel javascript se datepicker == undefined allora non esegure nessuna operazione a riguardo
             if($position != -1): ?>
                 <h3 class="uk-h5 filter-section" data-sort="<?=$position?>">
             
