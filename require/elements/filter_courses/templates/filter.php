@@ -89,7 +89,6 @@ function getData($courses, $attrToShow){
     $attributes = [DEFAULT_SITE_KEY=>array()];
 
     $attrToShow = array_map('strtolower', $attrToShow);
-
     foreach ($courses as $course) {
         //CONTROLLO DELLA DATA DEL CORSO (se è passato allora non visualizzare)
         $hide = false;
@@ -109,7 +108,7 @@ function getData($courses, $attrToShow){
                 $attrValue = strtr(utf8_decode(trim($rowElements[3]->nodeValue)),UNWANTED_ARRAY);
                 
                 if(count($attrToShow) > 0){
-                    if(array_search(strtolower($attrName), $attrToShow) != false){
+                    if(in_array(strtolower($attrName), $attrToShow)){
                         $attributes = insertAttribute($attrName, $attrValue, $attributes);
                     }
                 }else{
@@ -121,7 +120,7 @@ function getData($courses, $attrToShow){
     
             //INSERIMENTO SITE
             if(count($attrToShow) > 0){
-                if(array_search(strtolower(DEFAULT_SITE_KEY), $attrToShow) != false){
+                if(in_array(strtolower(DEFAULT_SITE_KEY), $attrToShow)){
                     $attributes =  insertSite($course, $attributes);
                 }
             }else{
@@ -130,7 +129,6 @@ function getData($courses, $attrToShow){
         }
         
     }
-	
     return $attributes;
 }
 
