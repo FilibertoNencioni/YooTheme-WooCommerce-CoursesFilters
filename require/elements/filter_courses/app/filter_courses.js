@@ -70,9 +70,12 @@ function checkCorsi(){
     //Populating the array with all the courses, this is used to see which courses match the attributes
     const corsiDaMostrare = [];
 
+    //Create initial corsiDaMostrare as all the courses are ok
     $(".corso").each(function(){
         corsiDaMostrare.push({corso: $(this).attr('id'), ok:true});
     });
+
+    //Hide the courses in corsiDaMostrare that doesn't match the selected tag 
     $(".filters :checkbox:checked").each(function() {
         //Check match of attributes
         for (let i = 0; i < classNames.length; i++) {
@@ -83,7 +86,6 @@ function checkCorsi(){
                 $(".corso").each(function(){
                     let attrFound = false;
 
-                    
                     if($(this).attr(tag)){
                         const selectedCorso = $(this);
                         let corsoTagValues = selectedCorso.attr(tag).split(",");
@@ -113,6 +115,7 @@ function checkCorsi(){
         }
     });
 
+    //Hide the courses in corsiDaMostrare that doesn't match the selected date 
     if($('#txtDate').length){
         var date =$("#txtDate").val();
         if(date){
@@ -167,42 +170,41 @@ function checkCorsi(){
                         })
                     }else{
                         console.log({element, tagPrefix})
-
                     }
                     
                 });
             }
 
         //Show courses and filters
-        }else{
-            if(element.classList.contains('uk-hidden')){
-                element.classList.remove('uk-hidden');
-                classNames.forEach(function(value){
-                    let tagPrefix = value.replace("filters","tag");
-                    if($(element).attr(tagPrefix) !== undefined){
-                        let currentTags=$(element).attr(tagPrefix).split(", ");
-                        currentTags.forEach(function(value){
-                            value = value.replaceAll(" ","-");
-                            
-                            $('.filters :checkbox').each(function(){
-                                if($(this).attr(tagPrefix)==value.trim()){
-                                    var label = $("label[for='"+this.id+"']");
-                                    var span = label.children('span');
-                                    var spanValue = parseInt(span.text())+1;
-                                    span.text(spanValue);
-                                    if(spanValue > 0){
-                                        label.removeClass("uk-hidden");
-                                    }
+        }else if (element.classList.contains('uk-hidden')){
+            element.classList.remove('uk-hidden');
+            classNames.forEach(function(value){
+                let tagPrefix = value.replace("filters","tag");
+                if($(element).attr(tagPrefix) !== undefined){
+                    let currentTags=$(element).attr(tagPrefix).split(", ");
+                    currentTags.forEach(function(value){
+                        value = value.replaceAll(" ","-");
+                        
+                        $('.filters :checkbox').each(function(){
+                            if($(this).attr(tagPrefix)==value.trim()){
+                                var label = $("label[for='"+this.id+"']");
+                                var span = label.children('span');
+                                var spanValue = parseInt(span.text())+1;
+                                span.text(spanValue);
+                                if(spanValue > 0){
+                                    label.removeClass("uk-hidden");
                                 }
-                            });
-                        })
-                    }else{
-                        console.log({element, tagPrefix})
-                    }
-                });
-            }
+                            }
+                        });
+                    })
+                }else{
+                    console.log({element, tagPrefix})
+                }
+            });
         }
     }
+
+    //Update dates in datepicker
     if($('#txtDate').length){
         getDays();
     }
